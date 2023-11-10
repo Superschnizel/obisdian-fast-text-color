@@ -1,15 +1,7 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Menu, HoverPopover, Component, HoverParent } from 'obsidian';
 import { ColorPickerModal } from 'src/ColorPickerModal';
-
-// Remember to rename these classes and interfaces!
-
-interface FastTextColorPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
-	mySetting: 'default'
-}
+import {DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings} from 'src/FastTextColorSettings';
+import { TextColor } from 'src/TextColor';
 
 export default class FastTextColorPlugin extends Plugin implements HoverParent {
 	hoverPopover: HoverPopover | null;
@@ -49,63 +41,93 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 	}
 
 	createColorMenu(editor: Editor) {
-		
-
-		
-
-		const cursorPos = editor.getCursor('anchor');
+		const cursorPos = editor.getCursor('from');
 		const cursorOffset = editor.posToOffset(cursorPos);
 		
 		// @ts-ignore
-		const coordsAtPos = editor.cm.coordsAtPos(cursorOffset)
-
-		console.log(coordsAtPos)
+		const coordsAtPos = editor.cm.coordsAtPos(cursorOffset, -1)
 		
-		// const menu = new Menu();
-		// menu.addItem((item) =>
-        // item
-        //   .setTitle("Copy")
-        //   .setIcon("documents")
-        //   .onClick(() => {
-        //     new Notice("Copied");
-        //   })
-      	// ).showAtPosition({x : coordsAtPos.left, y : coordsAtPos.bottom }, undefined);
+		// console.log(coordsAtPos)
+		
+		const menu = new Menu();
 
+		// need to get the DOM of the menu object
+		// @ts-ignore
+		var menuDom = menu.dom as HTMLElement;
+
+		menuDom.addClass("fast-color-menu");
+		
+		for (let i = 0; i < this.settings.colors.length; i++) {
+			console.log("creating item")
+			this.createColorItem(menu, this.settings.colors[i], i+1);			
+		}
+		menu.showAtPosition({x : coordsAtPos.left, y : coordsAtPos.bottom }, undefined);
+
+		return;
+		menu.addItem((item) =>
+        {item
+          .setTitle("1")
+          .setIcon(null)
+          .onClick(() => {
+            new Notice("Copied");
+          });
+
+		  // this is really hacky, but its the most straight-forward way i found to do this.
+		  // @ts-ignore
+		  const itemDom = item.dom as HTMLElement;
+		  itemDom.find("div").setAttribute("style", "background-color: #ff0000");
+		}
+      	).addItem((item) =>
+		item
+		.setTitle("2")
+		.setIcon(null)
+		.onClick(() => {
+			new Notice("Pasted");
+		})
+		).showAtPosition({x : coordsAtPos.left, y : coordsAtPos.bottom }, undefined);
+
+		
+
+		
 		// {"style": `position:absolute;z-index:100000;left:${coordsAtPos.left}px; top:${coordsAtPos.bottom}`}}
 		// this.app.workspace.getActiveViewOfType<MarkdownView>(MarkdownView)?.contentEl.createDiv({text : "this is a test spanferkel", attr : {"style": `position:absolute;z-index:100000;left:${coordsAtPos.left}px; top:${coordsAtPos.bottom}px`}})
 		// new ColorPickerModal(this.app, coordsAtPos).open();
 		
+		// console.log(`left:${coordsAtPos.left}px; top:${coordsAtPos.bottom}`)
+
+		/*
 		var popover = new HoverPopover(this, null);
 		popover.hoverEl.setText("Spanferkel");
-		popover.hoverEl.setAttr("style", `left:${coordsAtPos.left}px; top:${coordsAtPos.bottom}px`)
+		popover.hoverEl.setAttr("style", `position:absolute; left:${coordsAtPos.left}px; top:${coordsAtPos.bottom}px`) // this seems to work!!
+		*/
+	}
+
+	createColorItem(menu : Menu, tColor : TextColor, counter : number){
+		menu.addItem((item) =>
+        {item
+          .setTitle(`${counter}`)
+          .setIcon(null)
+          .onClick(() => {
+            let n = new Notice("activated color");
+			n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
+          });
+
+		  // this is really hacky, but its the most straight-forward way i found to do this.
+		  // @ts-ignore
+		  const itemDom = item.dom as HTMLElement;
+		  itemDom.find("div").setAttribute("style", `background-color: ${tColor.color}`);
+		  itemDom.addEventListener("keypress", ({key}) => {
+			if (key === `${counter}`) {
+					let n = new Notice("activated color");
+					n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
+				}
+			});
+		  
+		});
 	}
 }
 
 
 
 
-class FastTextColorPluginSettingTab extends PluginSettingTab {
-	plugin: FastTextColorPlugin;
 
-	constructor(app: App, plugin: FastTextColorPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}
