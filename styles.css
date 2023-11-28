@@ -1,11 +1,43 @@
 /*
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
+The general structure of the menu is adapted from Chetachi's cMenu https://github.com/chetachiezikeuzor/cMenu-Plugin
 
 */
+
+#fast-color-menu{
+  width: auto;
+  height: auto;
+  padding: 3px;
+  display: grid;
+  user-select: none;
+  border-radius: 6px;
+  position: absolute;
+  transition: 200ms ease;
+  min-width: fit-content;
+  justify-content: space-around;
+  z-index: var(--layer-status-bar);
+  /* box-shadow: 0px 3px 32px rgb(31 38 135 / 15%); */
+  border: 1px solid var(--background-modifier-border);
+}
+
+#fast-color-menu .fast-color-menu-item {
+  margin: 2px;
+  border: none;
+  display: flex;
+  cursor: pointer;
+  padding: 5px 6px;
+  box-shadow: none;
+  margin-left: 3px;
+  margin-right: 3px;
+  position: relative;
+  border-radius: 3px;
+  font-size: initial !important;
+  background-color: var(--background-primary-alt);
+}
+
+.fast-color-menu-item.number-icon {
+  color: white;
+}
 
 .menu.fast-color-menu {
     /* min-width: 140px; */
