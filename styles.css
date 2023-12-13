@@ -21,6 +21,8 @@ The general structure of the menu is adapted from Chetachi's cMenu https://githu
 }
 
 #fast-color-menu .fast-color-menu-item {
+	width: var(--size-4-8);
+	height: var(--size-4-8);
   margin: 2px;
   border: none;
   display: flex;
@@ -89,4 +91,20 @@ The general structure of the menu is adapted from Chetachi's cMenu https://githu
   
   .menu.fast-color-menu .menu-item:last-of-type {
     border-bottom: none;
+  }
+
+  /* SETTINGS  */
+  .ftc-format-item {
+	  width: var(--size-4-5);
+	  height: var(--size-4-5);
+
+	  background-color: var(--interactive-normal);
+  }
+
+  .ftc-format-item-enabled {
+	  width: var(--size-4-5);
+	  height: var(--size-4-5);
+
+	  background-color: var(--interactive-accent) !important;
+
   }

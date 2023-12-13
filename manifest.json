@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "fast-text-color",
+	"name": "Fast text color",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
+	"description": "Quickly apply text coloring and formatting with a personalised and keyboard-centric interface.",
 	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
+	"authorUrl": "https://github.com/Superschnizel",
 	"fundingUrl": "https://obsidian.md/pricing",
 	"isDesktopOnly": false
 }
