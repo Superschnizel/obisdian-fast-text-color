@@ -48,8 +48,14 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 	}
 
     createColorSetting(container : HTMLElement, tColor : TextColor): void{
-        new Setting(container)
-            .setName('color ')
+		
+		let frag = new DocumentFragment()
+		let fragdiv = frag.createDiv();
+		fragdiv.innerHTML = "Textcolor";
+		fragdiv.addClass(tColor.cssName);
+
+		new Setting(container)
+            .setName(frag)
 			.addButton(btn => {btn
 				.setButtonText("B")
 				.setTooltip("Bold")
@@ -74,11 +80,26 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			})
 			.addButton(btn => {btn
 				.setButtonText("U")
-				.setTooltip(tColor.line_mode.toString())
+				.setTooltip(tColor.line_mode.state)
 				.setClass("ftc-format-item")
 				.onClick(async evt => {
 					// cycle through enum
-					console.log(tColor.line_mode.toString());
+					tColor.line_mode.cycle();
+					btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.line_mode.state != "none");
+					await this.plugin.saveSettings();
+					this.plugin.setCssVariables();
+				})
+			})
+			.addButton(btn => {btn
+				.setButtonText("Tt")
+				.setTooltip(tColor.cap_mode.state)
+				.setClass("ftc-format-item")
+				.onClick(async evt => {
+					// cycle through enum
+					tColor.cap_mode.cycle();
+					btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.cap_mode.state != "normal");
+					await this.plugin.saveSettings();
+					this.plugin.setCssVariables();
 				})
 			})
             .addColorPicker((cb) => {cb
