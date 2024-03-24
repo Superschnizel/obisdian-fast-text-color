@@ -1,6 +1,6 @@
 import FastTextColorPlugin from 'main';
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { TextColor } from "./TextColor";
+import { TextColor } from "./color/TextColor";
 
 export interface FastTextColorPluginSettings {
 	colors: Array<TextColor>;

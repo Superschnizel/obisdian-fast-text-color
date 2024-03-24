@@ -1,5 +1,5 @@
 import {StateField} from '@codemirror/state';
-import {textColorLanguage} from './textColorLanguage'
+import {textColorLanguage} from './language/textColorLanguage'
 import {type ChangedRange, type Tree, TreeFragment} from '@lezer/common';
 import {DocInput} from "@codemirror/language";
 

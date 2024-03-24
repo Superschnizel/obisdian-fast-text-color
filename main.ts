@@ -1,10 +1,10 @@
 import { App, Editor, EditorPosition, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Menu, HoverPopover, Component, HoverParent, Scope, ButtonComponent } from 'obsidian';
-import { CreateCaptureScope } from 'src/CreateCaptureScope';
+import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
 import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings } from 'src/FastTextColorSettings';
-import { TextColor } from 'src/TextColor';
-import { IS_COLORED, LEADING_SPAN, TRAILING_SPAN } from 'src/regularExpressions';
-import {textColorViewPlugin} from 'src/TextColorViewPlugin'
-import { textColorParserField } from 'src/TextColorStateField';
+import { TextColor } from 'src/color/TextColor';
+import { IS_COLORED, LEADING_SPAN, TRAILING_SPAN } from 'src/utils/regularExpressions';
+import {textColorViewPlugin} from 'src/rendering/TextColorViewPlugin'
+import { textColorParserField } from 'src/rendering/TextColorStateField';
 
 const MAX_MENU_ITEMS :number = 10;
 

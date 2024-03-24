@@ -1,4 +1,4 @@
-import { CSS_COLOR_PREFIX } from "./FastTextColorSettings";
+import { CSS_COLOR_PREFIX } from "../FastTextColorSettings";
 
 export class TextColor {
 	color: string;

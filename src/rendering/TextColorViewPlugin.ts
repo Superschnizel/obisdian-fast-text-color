@@ -12,9 +12,9 @@ import {
 } from "@codemirror/view";
 import { textColorParserField } from "./TextColorStateField";
 import { TextColorWidget } from "./widgets/TextColorWidget";
-import { MarkerWidget } from "./widgets/MarkerWidget"
+import { MarkerWidget } from "../widgets/MarkerWidget"
 import { SyntaxNodeRef } from "@lezer/common"
-import { CSS_COLOR_PREFIX } from "./FastTextColorSettings";
+import { CSS_COLOR_PREFIX } from "../FastTextColorSettings";
 
 class TextColorViewPlugin implements PluginValue {
 	decorations: DecorationSet;
