@@ -1,0 +1,1 @@
+this text is before ++{colordescription} this text is colored++ and this text is after

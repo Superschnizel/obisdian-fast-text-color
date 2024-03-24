@@ -3,6 +3,11 @@ import { CreateCaptureScope } from 'src/CreateCaptureScope';
 import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings } from 'src/FastTextColorSettings';
 import { TextColor } from 'src/TextColor';
 import { IS_COLORED, LEADING_SPAN, TRAILING_SPAN } from 'src/regularExpressions';
+import {textColorViewPlugin} from 'src/TextColorViewPlugin'
+import { textColorParserField } from 'src/TextColorStateField';
+
+const MAX_MENU_ITEMS :number = 10;
+
 
 export default class FastTextColorPlugin extends Plugin implements HoverParent {
 	hoverPopover: HoverPopover | null;
@@ -20,7 +25,8 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 		// scope.register([], "1", (evt) => {console.log("1"); return false;})
 		// this.app.keymap.pushScope(scope);
 
-		this.setCssVariables();
+		this.registerEditorExtension(textColorParserField);
+		this.registerEditorExtension(textColorViewPlugin);
 
 		this.addRibbonIcon('dice', 'Sample Plugin',
 			(evt: MouseEvent) => {
@@ -53,10 +59,28 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 				this.closeColorMenu();
 			}
 		});
-		// compose scope
+
+
+		this.registerMarkdownPostProcessor((element, context) => {
+			const codeblocks = element.findAll("code");
+
+			console.log("processing");
+			for (let codeblock of codeblocks) {
+				const text = codeblock.innerText.trim();
+				if (text[0] === ":" && text[text.length - 1] === ":") {
+					console.log("Test");
+					const emojiEl = codeblock.createSpan({
+						text: "TEST--:"
+					});
+					codeblock.replaceWith(emojiEl);
+				}
+			}
+		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new FastTextColorPluginSettingTab(this.app, this));
+
+		this.setCssVariables();
 	}
 
 	onunload() {
@@ -65,8 +89,13 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 	}
 
 	async loadSettings() {
-		// this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		this.settings = DEFAULT_SETTINGS;
+		this.settings = DEFAULT_SETTINGS; return; // DEBUG
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+
+		for (let i = 0; i < this.settings.colors.length; i++) {
+			let obj: TextColor = this.settings.colors[i]
+			this.settings.colors[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index);
+		}
 	}
 
 	async saveSettings() {
@@ -97,7 +126,7 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 		document.body.querySelector(".mod-vertical.mod-root")?.insertAdjacentElement("afterbegin", this.colorMenu);
 
 
-		for (let i = 0; i < this.settings.colors.length; i++) {
+		for (let i = 0; i < Math.min(this.settings.colors.length, ); i++) {
 			this.createColorItem(this.colorMenu, this.settings.colors[i], i + 1, editor);
 		}
 
@@ -152,17 +181,16 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 	applyColor(tColor: TextColor, editor: Editor) {
 
 		// let prefix = `<span style="background-color:var(${tColor.cssName})">`;
-		let prefix = `<span class="${tColor.cssName}">`;
-		let suffix = `</span>`;
+		let prefix = `++{${tColor.id}}`;
+		let suffix = `++`;
 
 		// nothing is selected, just insert coloring
 		if (!editor.somethingSelected()) {
 			editor.replaceSelection(prefix);
 
 			let pos = editor.getCursor();
-			console.log(`line: ${pos.line}, ch: ${pos.ch}`);
+			// console.log(`line: ${pos.line}, ch: ${pos.ch}`);
 			editor.replaceSelection(suffix);
-
 
 			editor.setCursor(pos);
 
@@ -231,10 +259,11 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 
 		this.style.innerHTML = '';
 		// dynamically create stylesheet.
-		this.settings.colors.forEach(tColor => {
-			// @ts-ignore
+		this.settings.colors.forEach((tColor: TextColor) => {
 			// root.style.setProperty(tColor.cssVariable, tColor.color);
+			// console.log(tColor.cssName);
 			this.style.innerHTML += tColor.getCssStyle() + "\n";
+
 		});
 
 	}
