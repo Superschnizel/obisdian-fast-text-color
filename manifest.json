@@ -1,11 +1,11 @@
 {
 	"id": "fast-text-color",
-	"name": "Fast text color",
+	"name": "Fast Text Color",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Quickly apply text coloring and formatting with a personalised and keyboard-centric interface.",
+	"description": "Quickly apply fully integrated text coloring and formatting with a personalised and keyboard-centric interface.",
 	"author": "Obsidian",
 	"authorUrl": "https://github.com/Superschnizel",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"fundingUrl": "https://ko-fi.com/superschnizel",
 	"isDesktopOnly": false
 }

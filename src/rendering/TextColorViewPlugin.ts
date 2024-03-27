@@ -24,6 +24,7 @@ class TextColorViewPlugin implements PluginValue {
 	}
 
 	update(update: ViewUpdate) {
+		// console.log("view plugin updated")
 		if (update.docChanged || update.viewportChanged || update.selectionSet) {
 			this.decorations = this.buildDecorations(update.view);
 		}
@@ -35,13 +36,14 @@ class TextColorViewPlugin implements PluginValue {
 		const builder = new RangeSetBuilder<Decoration>();
 
 		// console.log('building decorations')
+		// console.log(`viewport: ${view.viewport.from}-${view.viewport.to}`)
 
 		for (let { from, to } of view.visibleRanges) {
 			view.state.field(textColorParserField).tree.iterate({
 				from,
 				to,
 				enter(node) {
-					console.log(node.name);
+					// console.log(node.name + ` at ${from}-${to}`);
 
 					if (node.type.name == "TextColor") {
 						return true;
@@ -69,17 +71,29 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 	// console.log("handling expression")
 
 	let from = ExpressionNode.from;
-	let colors: string[] = []; // handle recursive coloring with stack
-	
+	let colors: { color: string, inside: boolean}[] = []; // handle recursive coloring with stack
+
 	ExpressionNode.node.toTree().iterate({ // toTree allocates a tree, this might be a point of optimization. TODO
 		enter(node) {
-			console.log(node.name)
+			// console.log(node.name)
 
 			switch (node.type.name) {
 				case "RMarker":
-					colors.pop();
+					let inside = colors.pop()?.inside;
+					if (inside) {
+						return true;
+					}
+
+					builder.add(node.from + from, node.to + from, Decoration.replace({ widget: new MarkerWidget(), block: false }))
+					return true;
+
+				case "EOF":
+				case "ENDLN":
+					colors.pop()?.inside;
+					return true;
+
 				case "TcLeft":
-					if (cursorInside) {
+					if (colors.last()?.inside) {
 						return true;
 					}
 
@@ -89,19 +103,19 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 				case "Color":
 					// console.log('color')
 					let color = state.sliceDoc(from + node.from, from + node.to);
-					colors.push(color);
+					colors[colors.length - 1].color = color; 
 					return true;
 
 				case "Text":
-					builder.add(node.from + from , node.to + from, Decoration.mark({ class: `${CSS_COLOR_PREFIX}${colors[colors.length - 1]}` }))
+					builder.add(node.from + from, node.to + from, Decoration.mark({ class: `${CSS_COLOR_PREFIX}${colors[colors.length - 1].color}` }))
 					return false;
 
 				case "Expression":
-					cursorInside = state.selection.main.from <= from + node.to && state.selection.main.to >= from + node.from;
+					colors.push({color: '', inside: state.selection.main.from <= from + node.to && state.selection.main.to >= from + node.from})
 					return true;
-				
+
 				default:
-					console.log('default')
+					// console.log('default')
 					break;
 			}
 		},

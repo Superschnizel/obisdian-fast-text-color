@@ -1,6 +1,8 @@
 import FastTextColorPlugin from 'main';
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { TextColor } from "./color/TextColor";
+import { confirmByModal } from "./utils/ConfirmationModal"
+import { getKeyBindWithModal } from "./utils/KeyBindModal"
 
 export interface FastTextColorPluginSettings {
 	colors: Array<TextColor>;
@@ -11,25 +13,32 @@ export const CSS_COLOR_PREFIX = "--ftc-color-"
 
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	colors: [
-		new TextColor("#ad360e", `1`),
-		new TextColor("#370c94", `2`),
-		new TextColor("#0c9476", `3`),
-		new TextColor("#0c9417", `4`)],
+		new TextColor("#fe1616", `red`, false, false, 0, 0, 'A'),
+		new TextColor("#40fe0b", `2`, false, false, 0, 0, 'S'),
+		new TextColor("#5795e5", `3`, false, false, 0, 0, 'D'),
+		new TextColor("#d2751e", `4`, false, false, 0, 0, 'F')],
 	counter: 4
 }
 
 export class FastTextColorPluginSettingTab extends PluginSettingTab {
 	plugin: FastTextColorPlugin;
 
+	newId: string;
+
 	constructor(app: App, plugin: FastTextColorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+		this.newId = ''
 	}
+
 
 	display(): void {
 		const { containerEl } = this;
 
 		containerEl.empty();
+
+		containerEl.createDiv().innerText = "Define your colors here. The numbers on the left indicate wich number key can be pressed to insert the color. Change the order of the colors to change which ones will be activated by the number keys. Be careful when changing the ID of the colors as this does not change the assignment in the notes."
+		containerEl.createEl('h1').innerText = "Colors";
 
 		let count = 1;
 		this.plugin.settings.colors.forEach((color: TextColor) => {
@@ -39,34 +48,62 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Add new Color")
+			.addText(txt => {
+				txt
+					.setValue(this.newId == '' ? (this.plugin.settings.colors.length + 1).toString() : this.newId)
+					.onChange(value => {
+						this.newId = value;
+					})
+			})
 			.addButton(btn => {
 				btn.setButtonText("+")
 					.onClick(async evt => {
-						this.plugin.settings.colors.push(new TextColor("#ffffff", `${CSS_COLOR_PREFIX}${this.plugin.settings.colors.length}`));
+						this.plugin.settings.colors.push(new TextColor("#ffffff", this.newId == '' ? (this.plugin.settings.colors.length + 1).toString() : this.newId));
 						await this.plugin.saveSettings();
 						this.display();
 					})
 			})
-			.addButton(btn => {
-				btn
-					.setButtonText("-")
-					.onClick(async evt => {
-						this.plugin.settings.colors.pop();
-						await this.plugin.saveSettings();
-						this.display();
-					})
-			})
+		// .addButton(btn => {
+		// 	btn
+		// 		.setButtonText("-")
+		// 		.setTooltip("remove last color")
+		// 		.onClick(async evt => {
+		// 			this.plugin.settings.colors.pop();
+		// 			await this.plugin.saveSettings();
+		// 			this.display();
+		// 		})
+		// })
 	}
 
 	createColorSetting(container: HTMLElement, tColor: TextColor, count: number): void {
 
 		let frag = new DocumentFragment()
 		let fragdiv = frag.createDiv();
-		fragdiv.innerHTML = `${count} - Textcolor`;
-		fragdiv.addClass(tColor.id);
+		fragdiv.addClass("ftc-name-div")
+
+		const key = fragdiv.createDiv();
+		key.addClass("key-indicator")
+		key.innerText = `${tColor.keybind}`;
+
+		const exampletext = fragdiv.createDiv()
+		exampletext.addClass(`${CSS_COLOR_PREFIX}${tColor.id}`);
+		exampletext.innerText = `~={${tColor.id}}This is colored text=~`
 
 		new Setting(container)
 			.setName(frag)
+			.addButton(btn => {
+				btn
+					.setButtonText(`${tColor.keybind}`)
+					.setTooltip("keybinding")
+					.setClass("key-indicator")
+					.onClick(async evt => {
+						tColor.keybind = await getKeyBindWithModal(this.app);
+						btn.setButtonText(`${tColor.keybind}`);
+						await this.plugin.saveSettings();
+						this.plugin.setCssVariables();
+					})
+				btn.buttonEl.addClass("ftc-format-left")
+			})
 			.addButton(btn => {
 				btn
 					.setButtonText("B")
@@ -78,6 +115,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
 					})
+				btn.buttonEl.addClass("ftc-format-left")
 			})
 			.addButton(btn => {
 				btn
@@ -90,6 +128,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
 					})
+				btn.buttonEl.addClass("ftc-format-middle")
 			})
 			.addButton(btn => {
 				btn
@@ -100,9 +139,11 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						// cycle through enum
 						tColor.line_mode.cycle();
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.line_mode.state != "none");
+						btn.setTooltip(tColor.line_mode.state);
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
 					})
+				btn.buttonEl.addClass("ftc-format-middle")
 			})
 			.addButton(btn => {
 				btn
@@ -113,9 +154,11 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						// cycle through enum
 						tColor.cap_mode.cycle();
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.cap_mode.state != "normal");
+						btn.setTooltip(tColor.cap_mode.state);
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
 					})
+				btn.buttonEl.addClass("ftc-format-right")
 			})
 			.addColorPicker((cb) => {
 				cb
@@ -129,20 +172,39 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.addButton(btn => {
 				btn
 					.setIcon("chevron-up")
-				.onClick(async evt => {
-					moveColor(count - 1, -1, this.plugin.settings);
-					await this.plugin.saveSettings();
-					this.display();
-				})
+					.setTooltip("move item up")
+					.setClass("ftc-move-btn-left")
+					.onClick(async evt => {
+						moveColor(count - 1, -1, this.plugin.settings);
+						await this.plugin.saveSettings();
+						this.display();
+					})
 			})
 			.addButton(btn => {
 				btn
 					.setIcon("chevron-down")
-				.onClick(async evt => {
-					moveColor(count - 1, 1, this.plugin.settings);
-					await this.plugin.saveSettings();
-					this.display();
-				})
+					.setTooltip("move item down")
+					.setClass("ftc-move-btn-right")
+					.onClick(async evt => {
+						moveColor(count - 1, 1, this.plugin.settings);
+						await this.plugin.saveSettings();
+						this.display();
+					})
+			})
+			.addButton(btn => {
+				btn
+					.setIcon("trash")
+					.setTooltip("delete color")
+					.setClass("ftc-move-btn-right")
+					.onClick(async evt => {
+						if (await confirmByModal(this.app, 
+								`Colored section whith the id "${tColor.id}" will no longer be colored until you add another color with that id.`, 
+								`Delete color: ${tColor.id}`)) {
+							this.plugin.settings.colors.remove(tColor);
+						}
+						await this.plugin.saveSettings();
+						this.display();
+					})
 			})
 	}
 }

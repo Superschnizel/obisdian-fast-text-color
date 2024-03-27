@@ -1,3 +1,72 @@
+ /* SETTINGS  */
+.ftc-format-item {
+    width: var(--size-4-6);
+    height: var(--size-4-6);
+
+    background-color: var(--interactive-normal);
+}
+
+.ftc-format-item-enabled {
+    width: var(--size-4-6);
+    height: var(--size-4-6);
+
+    background-color: var(--interactive-accent) !important;
+
+}
+
+ .ftc-format-left {
+	 border-radius: var(--radius-s) 0 0 var(--radius-s);
+
+ }
+
+ .ftc-format-middle {
+	 border-radius: 0 0 0 0;
+	 margin-left:  calc(0px - var(--size-4-2));
+ }
+
+ .ftc-format-right {
+	 border-radius: 0 var(--radius-s) var(--radius-s) 0;
+	 margin-left:  calc(0px - var(--size-4-2));
+ }
+
+.ftc-name-div {
+	 display: flex;
+	 width: 100%;
+	 justify-content: space-between;
+	 align-items: center;
+
+	 flex-direction: row;
+ }
+
+ .ftc-name-div .key-indicator {
+	 display: flex;
+	 width: var(--size-4-8);
+	 height: var(--size-4-8);
+	 align-items: center;
+	 justify-content: center;
+	 border: 2px solid var(--background-primary-alt);
+	 border-radius: 0.3em;
+ }
+
+.ftc-move-btn-left {
+	 width: var(--size-4-6);
+	 height: var(--size-4-6);
+
+	 border-radius: var(--radius-s) 0 0 var(--radius-s);
+	 padding: 0px;
+ }
+
+.ftc-move-btn-right {
+	 width: var(--size-4-6);
+	 height: var(--size-4-6);
+
+	 border-radius: 0 var(--radius-s) var(--radius-s) 0;
+	 padding: 0px;
+	 margin-left:  calc(0px - var(--size-4-2));
+ }
+
+
+
 /*
 
 The general structure of the menu is adapted from Chetachi's cMenu https://github.com/chetachiezikeuzor/cMenu-Plugin
@@ -93,18 +162,4 @@ The general structure of the menu is adapted from Chetachi's cMenu https://githu
     border-bottom: none;
   }
 
-  /* SETTINGS  */
-  .ftc-format-item {
-	  width: var(--size-4-5);
-	  height: var(--size-4-5);
-
-	  background-color: var(--interactive-normal);
-  }
-
-  .ftc-format-item-enabled {
-	  width: var(--size-4-5);
-	  height: var(--size-4-5);
-
-	  background-color: var(--interactive-accent) !important;
-
-  }
+ 

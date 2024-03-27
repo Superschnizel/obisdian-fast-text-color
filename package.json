@@ -8,7 +8,7 @@
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"test": "jest",
-		"grammar": "node ./node_modules/@lezer/generator/src/lezer-generator.cjs ./src/textColorLanguage.grammar -o ./src/textColorLanguageParser.js"
+		"grammar": "node ./node_modules/@lezer/generator/src/lezer-generator.cjs ./src/rendering/language/textColorLanguage.grammar -o ./src/rendering/language/textColorLanguageParser.js"
 	},
 	"keywords": [],
 	"author": "",

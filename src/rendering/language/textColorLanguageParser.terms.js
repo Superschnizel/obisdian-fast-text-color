@@ -9,8 +9,10 @@ export const
   InnerMarker = 7,
   TcRight = 8,
   Text = 9,
-  RMarker = 10,
-  Unfinished = 11,
-  ColorEOF = 12,
-  ColorWS = 13,
-  EOF = 14
+  REnd = 10,
+  RMarker = 11,
+  ENDLN = 12,
+  EOF = 13,
+  Unfinished = 14,
+  ColorEOF = 15,
+  ColorWS = 16

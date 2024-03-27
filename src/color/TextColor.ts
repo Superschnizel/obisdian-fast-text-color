@@ -10,9 +10,12 @@ export class TextColor {
 	cap_mode: CycleState;
 	line_mode: CycleState;
 
-	constructor(color: string, id: string, italic:boolean=false, bold:boolean=false, cap_mode_index:number=0, line_mode_index:number=0) {
+	keybind: string;
+
+	constructor(color: string, id: string, italic:boolean=false, bold:boolean=false, cap_mode_index:number=0, line_mode_index:number=0, keybind:string='') {
 		this.color = color;
 		this.id = id;
+		this.keybind = keybind;
 
 		// text style
 		this.italic = italic;

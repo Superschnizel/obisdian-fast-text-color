@@ -1,16 +1,32 @@
-import { App, Editor, EditorPosition, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Menu, HoverPopover, Component, HoverParent, Scope, ButtonComponent } from 'obsidian';
+import {
+	App,
+	Editor,
+	EditorPosition,
+	MarkdownView,
+	Modal,
+	Notice,
+	Plugin,
+	PluginSettingTab,
+	Setting,
+	Menu,
+	HoverPopover,
+	Component,
+	HoverParent,
+	Scope,
+	ButtonComponent
+} from 'obsidian';
 import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
 import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings } from 'src/FastTextColorSettings';
 import { TextColor } from 'src/color/TextColor';
-import { IS_COLORED, LEADING_SPAN, TRAILING_SPAN } from 'src/utils/regularExpressions';
-import {textColorViewPlugin} from 'src/rendering/TextColorViewPlugin'
+import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
+import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
 import { textColorParserField } from 'src/rendering/TextColorStateField';
+import { textColorPostProcessor } from 'src/rendering/TextColorPostProcessor'
 
-const MAX_MENU_ITEMS :number = 10;
+const MAX_MENU_ITEMS: number = 10;
 
 
-export default class FastTextColorPlugin extends Plugin implements HoverParent {
-	hoverPopover: HoverPopover | null;
+export default class FastTextColorPlugin extends Plugin {
 	settings: FastTextColorPluginSettings;
 
 	colorMenu: HTMLDivElement | null | undefined;
@@ -27,12 +43,7 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 
 		this.registerEditorExtension(textColorParserField);
 		this.registerEditorExtension(textColorViewPlugin);
-
-		this.addRibbonIcon('dice', 'Sample Plugin',
-			(evt: MouseEvent) => {
-				// Called when the user clicks the icon.
-				new Notice('This is a notice!');
-			});
+		this.registerMarkdownPostProcessor(textColorPostProcessor);
 
 		this.addCommand({
 			id: 'change-text-color',
@@ -50,32 +61,6 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 			}
 		}
 		)
-
-
-		this.addCommand({
-			id: 'text-color-debug',
-			name: 'Debug',
-			callback: () => {
-				this.closeColorMenu();
-			}
-		});
-
-
-		this.registerMarkdownPostProcessor((element, context) => {
-			const codeblocks = element.findAll("code");
-
-			console.log("processing");
-			for (let codeblock of codeblocks) {
-				const text = codeblock.innerText.trim();
-				if (text[0] === ":" && text[text.length - 1] === ":") {
-					console.log("Test");
-					const emojiEl = codeblock.createSpan({
-						text: "TEST--:"
-					});
-					codeblock.replaceWith(emojiEl);
-				}
-			}
-		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new FastTextColorPluginSettingTab(this.app, this));
@@ -108,6 +93,13 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 
 		// @ts-ignore
 		// const coordsAtPos = editor.cm.coordsAtPos(cursorOffset, -1)
+		//
+		//
+		// TODO: do i really need to rebuild this every time?
+		if (this.colorMenu != null) {
+			console.log('colorMenu already exists');
+			return;
+		}
 
 		this.colorMenu = createDiv();
 		if (!this.colorMenu) {
@@ -126,14 +118,14 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 		document.body.querySelector(".mod-vertical.mod-root")?.insertAdjacentElement("afterbegin", this.colorMenu);
 
 
-		for (let i = 0; i < Math.min(this.settings.colors.length, ); i++) {
+		for (let i = 0; i < Math.min(this.settings.colors.length, MAX_MENU_ITEMS); i++) {
 			this.createColorItem(this.colorMenu, this.settings.colors[i], i + 1, editor);
 		}
 
 		// have to apply it again, otherwise menu will not be centered.
 		this.colorMenu.setAttribute("style", `left: calc(50% - ${this.colorMenu.offsetWidth}px / 2); ${attributes}`);
 
-		// for now construct scope on every opening
+		// for now construct scope on every opening TODO
 		this.constructScope(editor);
 		this.app.keymap.pushScope(this.scope);
 	}
@@ -141,6 +133,7 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 	closeColorMenu() {
 		if (this.colorMenu) {
 			this.colorMenu.remove();
+			this.colorMenu = null;
 		}
 		this.app.keymap.popScope(this.scope);
 	}
@@ -150,9 +143,9 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 		let { scope } = this;
 
 		// colors - number keys
-		for (let i = 0; i < Math.min(this.settings.colors.length, 10); i++) {
+		for (let i = 0; i < this.settings.colors.length ; i++) {
 			const tColor = this.settings.colors[i];
-			scope.register([], ((i + 1) % 10).toString(), (event) => {
+			scope.register([], tColor.keybind, (event) => {
 				if (event.isComposing) {
 					return true;
 				}
@@ -180,9 +173,8 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 
 	applyColor(tColor: TextColor, editor: Editor) {
 
-		// let prefix = `<span style="background-color:var(${tColor.cssName})">`;
-		let prefix = `++{${tColor.id}}`;
-		let suffix = `++`;
+		let prefix = `~={${tColor.id}}`;
+		let suffix = `=~`;
 
 		// nothing is selected, just insert coloring
 		if (!editor.somethingSelected()) {
@@ -195,22 +187,22 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 			editor.setCursor(pos);
 
 			// push a scope onto the stack to be able to jump out with tab
-			let scope = CreateCaptureScope(editor, this.app, pos, suffix);
+			// this made more Problems than it was worth... maybe readd later.
 
-			this.app.keymap.pushScope(scope);
+			// let scope = CreateCaptureScope(editor, this.app, pos, suffix);
+
+			// this.app.keymap.pushScope(scope);
 			return;
 		}
 
 		let selected = editor.getSelection();
 
-
 		// TODO check if there already is some coloring applied somewhere near.
 		// for now just check if what is marked is already a colored section and trim tags:
-		if (selected.match(IS_COLORED)) {
-			selected = selected.replace(LEADING_SPAN, '');
-			selected = selected.replace(TRAILING_SPAN, '');
-		}
-
+		// if (selected.match(IS_COLORED)) {
+		// 	selected = selected.replace(LEADING_SPAN, '');
+		// 	selected = selected.replace(TRAILING_SPAN, '');
+		// }
 
 		let coloredText = `${prefix}${selected}${suffix}`;
 
@@ -221,10 +213,8 @@ export default class FastTextColorPlugin extends Plugin implements HoverParent {
 		// for now only works if span is leading and trailing
 		let selected = editor.getSelection();
 
-		if (selected.match(IS_COLORED)) {
-			selected = selected.replace(LEADING_SPAN, '');
-			selected = selected.replace(TRAILING_SPAN, '');
-		}
+		selected = selected.replace(PREFIX, '');
+		selected = selected.replace(SUFFIX, '');
 		editor.replaceSelection(selected);
 	}
 
