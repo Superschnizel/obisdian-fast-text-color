@@ -166,6 +166,22 @@ export default class FastTextColorPlugin extends Plugin {
 			this.closeColorMenu();
 			return false;
 		})
+		scope.register([], "Delete", (event) => {
+			if (event.isComposing) {
+				return true;
+			}
+
+			this.closeColorMenu();
+			return false;
+		})
+		scope.register([], "Backspace", (event) => {
+			if (event.isComposing) {
+				return true;
+			}
+
+			this.closeColorMenu();
+			return false;
+		})
 
 		// TODO arrow keys movement.
 		// TODO mouse click ends
@@ -222,7 +238,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 	createColorItem(menu: HTMLDivElement, tColor: TextColor, counter: number, editor: Editor) {
 		new ButtonComponent(menu)
-			.setButtonText(`${counter}`)
+			.setButtonText(`${tColor.keybind}`)
 			.setClass("fast-color-menu-item")
 			.setTooltip("this is a tooltip")
 			.onClick(() => {

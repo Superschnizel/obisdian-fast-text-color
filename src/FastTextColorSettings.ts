@@ -41,7 +41,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createDiv().innerText = "Define your colors here. The numbers on the left indicate wich number key can be pressed to insert the color. Change the order of the colors to change which ones will be activated by the number keys. Be careful when changing the ID of the colors as this does not change the assignment in the notes."
+		// containerEl.createDiv().innerText = "Define your colors here. The numbers on the left indicate wich number key can be pressed to insert the color. Change the order of the colors to change which ones will be activated by the number keys. Be careful when changing the ID of the colors as this does not change the assignment in the notes."
 		containerEl.createEl('h1').innerText = "Colors";
 
 		let count = 1;
@@ -119,6 +119,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						this.plugin.setCssVariables();
 					})
 				btn.buttonEl.addClass("ftc-format-left")
+				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.bold);
 			})
 			.addButton(btn => {
 				btn
@@ -132,6 +133,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						this.plugin.setCssVariables();
 					})
 				btn.buttonEl.addClass("ftc-format-middle")
+				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.italic);
 			})
 			.addButton(btn => {
 				btn
@@ -147,6 +149,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						this.plugin.setCssVariables();
 					})
 				btn.buttonEl.addClass("ftc-format-middle")
+				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.line_mode.state != "none");
 			})
 			.addButton(btn => {
 				btn
@@ -162,6 +165,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						this.plugin.setCssVariables();
 					})
 				btn.buttonEl.addClass("ftc-format-right")
+				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.cap_mode.state != "normal");
 			})
 			.addColorPicker((cb) => {
 				cb
@@ -200,9 +204,9 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setTooltip("delete color")
 					.setClass("ftc-move-btn-right")
 					.onClick(async evt => {
-						if (await confirmByModal(this.app, 
-								`Colored section whith the id "${tColor.id}" will no longer be colored until you add another color with that id.`, 
-								`Delete color: ${tColor.id}`)) {
+						if (await confirmByModal(this.app,
+							`Colored section whith the id "${tColor.id}" will no longer be colored until you add another color with that id.`,
+							`Delete color: ${tColor.id}`)) {
 							this.plugin.settings.colors.remove(tColor);
 						}
 						await this.plugin.saveSettings();

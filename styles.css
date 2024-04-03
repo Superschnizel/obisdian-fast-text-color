@@ -87,6 +87,7 @@ The general structure of the menu is adapted from Chetachi's cMenu https://githu
   z-index: var(--layer-status-bar);
   /* box-shadow: 0px 3px 32px rgb(31 38 135 / 15%); */
   border: 1px solid var(--background-modifier-border);
+	 background-color: var(--background-primary);
 }
 
 #fast-color-menu .fast-color-menu-item {
@@ -104,6 +105,7 @@ The general structure of the menu is adapted from Chetachi's cMenu https://githu
   border-radius: 3px;
   font-size: initial !important;
   background-color: var(--background-primary-alt);
+	 text-shadow: 0 0 2px #000;
 }
 
 .fast-color-menu-item.number-icon {
