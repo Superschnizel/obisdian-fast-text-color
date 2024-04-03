@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { parser } from "../src/textColorLanguageParser.js"
+import { parser } from "../src/rendering/language/textColorLanguageParser"
 
 // This test script was generated with Chat-GPT
 
