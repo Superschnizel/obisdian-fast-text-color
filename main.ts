@@ -74,7 +74,7 @@ export default class FastTextColorPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = DEFAULT_SETTINGS; return; // DEBUG
+		// this.settings = DEFAULT_SETTINGS; return; // DEBUG
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 
 		for (let i = 0; i < this.settings.colors.length; i++) {
