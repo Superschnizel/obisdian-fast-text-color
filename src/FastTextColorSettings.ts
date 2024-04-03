@@ -6,18 +6,22 @@ import { getKeyBindWithModal } from "./utils/KeyBindModal"
 
 export interface FastTextColorPluginSettings {
 	colors: Array<TextColor>;
-	counter: number;
+	version: string;
 }
 
 export const CSS_COLOR_PREFIX = "--ftc-color-"
 
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	colors: [
-		new TextColor("#fe1616", `red`, false, false, 0, 0, 'A'),
-		new TextColor("#40fe0b", `2`, false, false, 0, 0, 'S'),
-		new TextColor("#5795e5", `3`, false, false, 0, 0, 'D'),
-		new TextColor("#d2751e", `4`, false, false, 0, 0, 'F')],
-	counter: 4
+		new TextColor("#ff0000", `red`, false, false, 0, 0, 'A'),
+		new TextColor("#ea732a", `orange`, false, false, 0, 0, 'S'),
+		new TextColor("#f0cc2e", `yellow`, false, false, 0, 0, 'D'),
+		new TextColor("#bc18dc", `magenta`, false, false, 0, 0, 'F'),
+		new TextColor("#51070f", `green`, false, false, 0, 0, 'J'),
+		new TextColor("#28c883", `cyan`, false, false, 0, 0, 'K'),
+		new TextColor("#2778ff", `blue`, false, false, 0, 0, 'L'),
+		new TextColor("#123f59", `black`, false, false, 0, 0, 'Ö')],
+	version: "1"
 }
 
 export class FastTextColorPluginSettingTab extends PluginSettingTab {
@@ -82,8 +86,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		fragdiv.addClass("ftc-name-div")
 
 		const key = fragdiv.createDiv();
-		key.addClass("key-indicator")
-		key.innerText = `${tColor.keybind}`;
+		key.innerText = `${tColor.id}`;
 
 		const exampletext = fragdiv.createDiv()
 		exampletext.addClass(`${CSS_COLOR_PREFIX}${tColor.id}`);
