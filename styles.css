@@ -93,6 +93,7 @@ The general structure of the menu is adapted from Chetachi's cMenu https://githu
 #fast-color-menu .fast-color-menu-item {
 	width: var(--size-4-8);
 	height: var(--size-4-8);
+	 color: white;
   margin: 2px;
   border: none;
   display: flex;

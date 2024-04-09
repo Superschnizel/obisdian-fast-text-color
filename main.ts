@@ -62,6 +62,23 @@ export default class FastTextColorPlugin extends Plugin {
 		}
 		)
 
+		this.registerEvent(
+			this.app.workspace.on("editor-menu", (menu, editor, view) => {
+				if (editor.getSelection() == '') {
+					return;
+				}
+				menu.addItem((item) => {
+					item
+						.setSection("selection")
+						.setTitle("Open color Menu")
+						.setIcon("palette")
+						.onClick(async () => {
+							this.openColorMenu(editor);
+						});
+				});
+			})
+		);
+
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new FastTextColorPluginSettingTab(this.app, this));
 
@@ -79,7 +96,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 		for (let i = 0; i < this.settings.colors.length; i++) {
 			let obj: TextColor = this.settings.colors[i]
-			this.settings.colors[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index);
+			this.settings.colors[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
 		}
 	}
 
@@ -143,7 +160,7 @@ export default class FastTextColorPlugin extends Plugin {
 		let { scope } = this;
 
 		// colors - number keys
-		for (let i = 0; i < this.settings.colors.length ; i++) {
+		for (let i = 0; i < this.settings.colors.length; i++) {
 			const tColor = this.settings.colors[i];
 			scope.register([], tColor.keybind, (event) => {
 				if (event.isComposing) {
@@ -240,7 +257,6 @@ export default class FastTextColorPlugin extends Plugin {
 		new ButtonComponent(menu)
 			.setButtonText(`${tColor.keybind}`)
 			.setClass("fast-color-menu-item")
-			.setTooltip("this is a tooltip")
 			.onClick(() => {
 				let n = new Notice("activated color");
 				n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
