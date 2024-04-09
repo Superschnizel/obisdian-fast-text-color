@@ -51,17 +51,18 @@ You can select a color by either by clicking on a button or by using the assigne
 These issues mainly arrise from the different techniques needed for Live Preview and Reading Mode and will be fixed in the future.
 
 - **Reading Mode**.
-	- an unopened closing delimiter `+-` will lead to problems in reading mode.
+	- an unopened closing delimiter `=~` will lead to problems in reading mode.
 
 ## Planned Features:
 
-- Selectable color themes
-- More ways to apply color
-	- context menu
-	- suggester
- - Automatically Color by Keyword
- - More (Custom) Css elements
+- [ ] Selectable color themes
+- [ ] More/better ways to apply color
+	- [ ] submenu in editor context menu
+	- [ ] add suggester
+ - [ ] changing color through interactable delimiter.
+ - [ ] Automatically Color by Keyword
+ - [ ] More (Custom) Css options.
 
 ## How it works
 
-This plugin works by using a custom parser, which allow the coloring to work very well
+This plugin works by using a custom parser, which allows the colloring to interact with the usual obsidian syntax. For each coloring id a css class is created.
