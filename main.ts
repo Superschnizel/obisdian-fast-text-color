@@ -22,6 +22,9 @@ import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
 import { textColorParserField } from 'src/rendering/TextColorStateField';
 import { textColorPostProcessor } from 'src/rendering/TextColorPostProcessor'
+import { syntaxTree } from "@codemirror/language";
+import { EditorState, Prec } from "@codemirror/state";
+import { keymap, EditorView} from '@codemirror/view'
 
 const MAX_MENU_ITEMS: number = 10;
 
@@ -44,6 +47,17 @@ export default class FastTextColorPlugin extends Plugin {
 		this.registerEditorExtension(textColorParserField);
 		this.registerEditorExtension(textColorViewPlugin);
 		this.registerMarkdownPostProcessor(textColorPostProcessor);
+
+		this.registerEditorExtension(
+			Prec.high(
+				keymap.of([
+					{
+						key: "Tab",
+						run: (editorView) => this.jumpOut(editorView),
+					},
+				])
+			)
+		);
 
 		this.addCommand({
 			id: 'change-text-color',
@@ -251,7 +265,34 @@ export default class FastTextColorPlugin extends Plugin {
 		editor.replaceSelection(selected);
 	}
 
+	jumpOut(editorView: EditorView): boolean {
+		//@ts-ignore
+		const state: EditorState = editorView.state;
+		const tree = state.field(textColorParserField).tree;
+		const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+		if (!editor) {
+			return false;
+		}
 
+		// console.log(`resolve: ${tree.resolve(state.selection.main.head)}`)
+		// console.log(`resolveInner: ${tree.resolveInner(state.selection.main.head, 0)}`)
+		// console.log(`resolveStack: ${tree.resolveStack(state.selection.main.head, 0)}`)
+
+		let inner = tree.resolve(state.selection.main.head);
+
+		if (inner.type.name == "Text" && inner.parent != null) {
+			inner = inner.parent;
+		}
+
+		if (inner.type.name != "TcRight") {
+			return false;
+		}
+
+		
+		editor.setCursor(editor.offsetToPos(inner.to));
+
+		return true;
+	}
 
 	createColorItem(menu: HTMLDivElement, tColor: TextColor, counter: number, editor: Editor) {
 		new ButtonComponent(menu)

@@ -1,4 +1,3 @@
-import { syntaxTree } from "@codemirror/language";
 import { RangeSetBuilder, EditorState } from "@codemirror/state";
 import {
 	Decoration,
