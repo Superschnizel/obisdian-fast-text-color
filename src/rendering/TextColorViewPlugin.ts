@@ -12,6 +12,7 @@ import {
 import { textColorParserField } from "./TextColorStateField";
 import { MarkerWidget } from "../widgets/MarkerWidget"
 import { SyntaxNodeRef } from "@lezer/common"
+import { ColorWidget } from "src/widgets/ColorWidget";
 import { CSS_COLOR_PREFIX } from "../FastTextColorSettings";
 
 class TextColorViewPlugin implements PluginValue {
@@ -54,7 +55,7 @@ class TextColorViewPlugin implements PluginValue {
 
 					const cursorInside = view.state.selection.main.from <= node.to && view.state.selection.main.to >= node.from;
 
-					handleExpression(node, builder, view.state, cursorInside);
+					handleExpression(node, builder, view.state);
 
 					return false;
 				},
@@ -65,11 +66,14 @@ class TextColorViewPlugin implements PluginValue {
 	}
 }
 
-function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilder<Decoration>, state: EditorState, cursorInside: boolean) {
+function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilder<Decoration>, state: EditorState) {
 	// console.log("handling expression")
 
-	let from = ExpressionNode.from;
+	const from = ExpressionNode.from;
 	let colors: { color: string, inside: boolean}[] = []; // handle recursive coloring with stack
+
+	const stateFrom = state.selection.main.from;
+	const stateTo = state.selection.main.to;
 
 	ExpressionNode.node.toTree().iterate({ // toTree allocates a tree, this might be a point of optimization. TODO
 		enter(node) {
@@ -102,6 +106,17 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 					// console.log('color')
 					let color = state.sliceDoc(from + node.from, from + node.to);
 					colors[colors.length - 1].color = color; 
+
+					if (colors.last()?.inside) {
+						console.log("building")
+						if (stateFrom <= from + node.to && stateTo >= from + node.from) {
+							return true;							
+						}
+
+
+						builder.add(node.from + from, node.to + from, Decoration.replace({ widget: new ColorWidget(color, node.from + from, node.to + from), block: false}))
+					}
+
 					return true;
 
 				case "Text":
@@ -109,7 +124,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 					return false;
 
 				case "Expression":
-					colors.push({color: '', inside: state.selection.main.from <= from + node.to && state.selection.main.to >= from + node.from})
+					colors.push({color: '', inside: stateFrom <= from + node.to && stateTo >= from + node.from})
 					return true;
 
 				default:

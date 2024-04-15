@@ -9,7 +9,8 @@ export interface FastTextColorPluginSettings {
 	version: string;
 }
 
-export const CSS_COLOR_PREFIX = "--ftc-color-"
+export const CSS_COLOR_PREFIX = "ftc-color-"
+export const VAR_COLOR_PREFIX = "--ftc-color-"
 
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	colors: [

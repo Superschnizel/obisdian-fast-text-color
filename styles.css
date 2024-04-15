@@ -1,3 +1,11 @@
+/* color delimiter icon */
+
+.ftc-color-delimiter {
+	cursor: pointer;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
  /* SETTINGS  */
 .ftc-format-item {
     width: var(--size-4-6);

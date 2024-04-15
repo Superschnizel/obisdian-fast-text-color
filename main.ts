@@ -181,8 +181,8 @@ export default class FastTextColorPlugin extends Plugin {
 					return true;
 				}
 
-				let n = new Notice("activated color");
-				n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
+				// let n = new Notice("activated color");
+				// n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
 				this.applyColor(tColor, editor);
 				this.closeColorMenu();
 				return false;

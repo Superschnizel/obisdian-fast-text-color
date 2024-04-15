@@ -17,4 +17,3 @@ export class MarkerWidget extends WidgetType {
 		return div;
 	}
 }
-
