@@ -23,8 +23,9 @@ import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
 import { textColorParserField } from 'src/rendering/TextColorStateField';
 import { textColorPostProcessor } from 'src/rendering/TextColorPostProcessor'
 import { syntaxTree } from "@codemirror/language";
-import { EditorState, Prec } from "@codemirror/state";
-import { keymap, EditorView} from '@codemirror/view'
+import { EditorState, Prec, Extension, Compartment } from "@codemirror/state";
+import { keymap, EditorView } from '@codemirror/view'
+import { settingsFacet } from "./src/SettingsFacet";
 
 const MAX_MENU_ITEMS: number = 10;
 
@@ -37,6 +38,9 @@ export default class FastTextColorPlugin extends Plugin {
 
 	style: HTMLElement;
 
+	settingsExtension: Extension;
+	settingsCompartment: Compartment;
+
 	async onload() {
 		await this.loadSettings();
 
@@ -48,6 +52,10 @@ export default class FastTextColorPlugin extends Plugin {
 		this.registerEditorExtension(textColorViewPlugin);
 		this.registerMarkdownPostProcessor(textColorPostProcessor);
 
+		this.settingsCompartment = new Compartment();
+		this.settingsExtension = this.settingsCompartment.of(settingsFacet.of(this.settings));
+		this.registerEditorExtension(this.settingsExtension);
+
 		this.registerEditorExtension(
 			Prec.high(
 				keymap.of([
@@ -58,6 +66,7 @@ export default class FastTextColorPlugin extends Plugin {
 				])
 			)
 		);
+
 
 		this.addCommand({
 			id: 'change-text-color',
@@ -116,6 +125,18 @@ export default class FastTextColorPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		const editorView = (view?.editor as any).cm as EditorView;
+
+		if (editorView == null) {
+			console.log("editorView is null! Settings might not apply to Editor");
+			return;
+		}
+
+		editorView.dispatch({
+			effects: this.settingsCompartment.reconfigure(settingsFacet.of(this.settings))
+		})
 	}
 
 	openColorMenu(editor: Editor) {
@@ -288,7 +309,7 @@ export default class FastTextColorPlugin extends Plugin {
 			return false;
 		}
 
-		
+
 		editor.setCursor(editor.offsetToPos(inner.to));
 
 		return true;

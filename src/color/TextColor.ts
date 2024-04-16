@@ -24,6 +24,10 @@ export class TextColor {
 		this.line_mode = new CycleState(['none', 'underline', 'overline', 'line-through'], line_mode_index);
 	}
 
+	className(): string {
+		return `${CSS_COLOR_PREFIX}${this.id}`
+	}
+
 	getCssStyle(): string {
 		// what is going on?
 		return `.${CSS_COLOR_PREFIX}${this.id} { 

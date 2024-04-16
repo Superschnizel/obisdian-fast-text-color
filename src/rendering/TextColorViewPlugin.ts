@@ -14,6 +14,7 @@ import { MarkerWidget } from "../widgets/MarkerWidget"
 import { SyntaxNodeRef } from "@lezer/common"
 import { ColorWidget } from "src/widgets/ColorWidget";
 import { CSS_COLOR_PREFIX } from "../FastTextColorSettings";
+import { settingsFacet } from "src/SettingsFacet";
 
 class TextColorViewPlugin implements PluginValue {
 	decorations: DecorationSet;
@@ -36,6 +37,8 @@ class TextColorViewPlugin implements PluginValue {
 
 		// console.log('building decorations')
 		// console.log(`viewport: ${view.viewport.from}-${view.viewport.to}`)
+		//
+		// console.log(settings.version);
 
 		for (let { from, to } of view.visibleRanges) {
 			view.state.field(textColorParserField).tree.iterate({
@@ -53,7 +56,7 @@ class TextColorViewPlugin implements PluginValue {
 						return false;
 					}
 
-					const cursorInside = view.state.selection.main.from <= node.to && view.state.selection.main.to >= node.from;
+					// const cursorInside = view.state.selection.main.from <= node.to && view.state.selection.main.to >= node.from;
 
 					handleExpression(node, builder, view.state);
 
@@ -70,12 +73,13 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 	// console.log("handling expression")
 
 	const from = ExpressionNode.from;
-	let colors: { color: string, inside: boolean}[] = []; // handle recursive coloring with stack
+	let colors: { color: string, inside: boolean }[] = []; // handle recursive coloring with stack
 
 	const stateFrom = state.selection.main.from;
 	const stateTo = state.selection.main.to;
+	const settings = state.facet(settingsFacet);
 
-	ExpressionNode.node.toTree().iterate({ // toTree allocates a tree, this might be a point of optimization. TODO
+	ExpressionNode.node.toTree().iterate({ // toTree allocates a tree, this might be a point of optimization. TODO optimization
 		enter(node) {
 			// console.log(node.name)
 
@@ -105,16 +109,16 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 				case "Color":
 					// console.log('color')
 					let color = state.sliceDoc(from + node.from, from + node.to);
-					colors[colors.length - 1].color = color; 
+					colors[colors.length - 1].color = color;
 
-					if (colors.last()?.inside) {
+					if (colors.last()?.inside && settings.interactiveDelimiters) {
 						console.log("building")
 						if (stateFrom <= from + node.to && stateTo >= from + node.from) {
-							return true;							
+							return true;
 						}
 
 
-						builder.add(node.from + from, node.to + from, Decoration.replace({ widget: new ColorWidget(color, node.from + from, node.to + from), block: false}))
+						builder.add(node.from + from, node.to + from, Decoration.replace({ widget: new ColorWidget(color, node.from + from, node.to + from), block: false }))
 					}
 
 					return true;
@@ -124,11 +128,10 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 					return false;
 
 				case "Expression":
-					colors.push({color: '', inside: stateFrom <= from + node.to && stateTo >= from + node.from})
+					colors.push({ color: '', inside: stateFrom <= from + node.to && stateTo >= from + node.from })
 					return true;
 
 				default:
-					// console.log('default')
 					break;
 			}
 		},

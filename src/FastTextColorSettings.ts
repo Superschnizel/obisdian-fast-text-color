@@ -7,6 +7,8 @@ import { getKeyBindWithModal } from "./utils/KeyBindModal"
 export interface FastTextColorPluginSettings {
 	colors: Array<TextColor>;
 	version: string;
+
+	interactiveDelimiters: boolean;
 }
 
 export const CSS_COLOR_PREFIX = "ftc-color-"
@@ -22,7 +24,8 @@ export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 		new TextColor("#28c883", `cyan`, false, false, 0, 0, 'K'),
 		new TextColor("#2778ff", `blue`, false, false, 0, 0, 'L'),
 		new TextColor("#123f59", `black`, false, false, 0, 0, 'Ö')],
-	version: "1"
+	version: "2",
+	interactiveDelimiters: true
 }
 
 export class FastTextColorPluginSettingTab extends PluginSettingTab {
@@ -39,6 +42,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 	display(): void {
 		const { containerEl } = this;
+		const { settings } = this.plugin;
 
 		containerEl.empty();
 
@@ -55,7 +59,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.setName("Add new Color")
 			.addText(txt => {
 				txt
-					.setValue(this.newId == '' ? (this.plugin.settings.colors.length + 1).toString() : this.newId)
+					.setValue(this.newId == '' ? (settings.colors.length + 1).toString() : this.newId)
 					.onChange(value => {
 						this.newId = value;
 					})
@@ -63,7 +67,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.addButton(btn => {
 				btn.setButtonText("+")
 					.onClick(async evt => {
-						this.plugin.settings.colors.push(new TextColor("#ffffff", this.newId == '' ? (this.plugin.settings.colors.length + 1).toString() : this.newId));
+						settings.colors.push(new TextColor("#ffffff", this.newId == '' ? (settings.colors.length + 1).toString() : this.newId));
 						await this.plugin.saveSettings();
 						this.display();
 					})
@@ -78,6 +82,15 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		// 			this.display();
 		// 		})
 		// })
+		new Setting(containerEl)
+			.setName("Interactive delimiters")
+			.addToggle(tgl => {
+				tgl.setValue(settings.interactiveDelimiters)
+				.onChange(async value =>{
+						settings.interactiveDelimiters = value;
+						await this.plugin.saveSettings();
+				})
+		})
 	}
 
 	createColorSetting(container: HTMLElement, tColor: TextColor, count: number): void {
