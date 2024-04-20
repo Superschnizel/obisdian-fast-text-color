@@ -157,6 +157,7 @@ export default class FastTextColorPlugin extends Plugin {
 		})
 	}
 
+	// create and open the color menu
 	openColorMenu(editor: Editor) {
 		// const cursorPos = editor.getCursor('from');
 		// const cursorOffset = editor.posToOffset(cursorPos);
