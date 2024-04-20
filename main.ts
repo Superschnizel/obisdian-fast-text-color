@@ -13,7 +13,8 @@ import {
 	Component,
 	HoverParent,
 	Scope,
-	ButtonComponent
+	ButtonComponent,
+	MenuItem
 } from 'obsidian';
 import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
 import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings } from 'src/FastTextColorSettings';
@@ -93,12 +94,29 @@ export default class FastTextColorPlugin extends Plugin {
 				menu.addItem((item) => {
 					item
 						.setSection("selection")
-						.setTitle("Open color Menu")
-						.setIcon("palette")
-						.onClick(async () => {
-							this.openColorMenu(editor);
-						});
-				});
+						.setTitle("Color")
+						.setIcon("palette");
+					// @ts-ignore
+					const submenu: Menu = item.setSubmenu();
+					this.settings.colors.forEach(tColor => {
+						console.log(tColor.id);
+						
+						submenu.addItem((subitem) => {
+
+							subitem
+								.setTitle(tColor.id)
+								.setIcon("circle")
+								.onClick(evt => {
+									this.applyColor(tColor, editor);
+							});
+							
+							// @ts-ignore
+							(subitem.dom as HTMLElement).addClass(tColor.className());
+							// @ts-ignore
+							(subitem.iconEl as HTMLElement).addClass(tColor.className());
+						})
+					});
+				})
 			})
 		);
 

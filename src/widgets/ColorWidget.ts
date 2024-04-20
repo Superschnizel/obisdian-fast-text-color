@@ -7,14 +7,16 @@ export class ColorWidget extends WidgetType {
 	id: string;
 	from: number;
 	to: number;
+	expressionTo: number;
 
 	menu: Menu | null;
 
-	constructor(id: string, from: number, to: number) {
+	constructor(id: string, from: number, to: number, expressionTo: number) {
 		super();
 		this.id = id;
 		this.from = from;
 		this.to = to;
+		this.expressionTo = expressionTo; 
 	}
 
 	toDOM(view: EditorView): HTMLElement {
@@ -60,6 +62,25 @@ export class ColorWidget extends WidgetType {
 						(item.dom as HTMLElement).addClass(tColor.className());
 					})
 				});
+				this.menu.addItem(item => {
+					item
+						.setTitle("Remove")
+						.setIcon("ban")
+						.onClick(evt => {
+							view.dispatch({
+								changes: [{
+									from: this.from - 3,
+									to: this.to + 1,
+									insert: ''
+								},{
+									from: this.expressionTo - 2,
+									to: this.expressionTo,
+									insert: ''
+								}
+								]
+							})
+					})
+				})
 				// @ts-ignore
 				// this.menu.dom.addClass("popover");
 			}
