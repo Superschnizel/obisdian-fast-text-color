@@ -1,31 +1,65 @@
 import FastTextColorPlugin from 'main';
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { TextColor } from "./color/TextColor";
+import { TextColorTheme } from "./color/TextColorTheme";
 import { confirmByModal } from "./utils/ConfirmationModal"
+import { CreateNewThemeModal } from './utils/CreateNewThemeModal';
 import { getKeyBindWithModal } from "./utils/KeyBindModal"
 
-export interface FastTextColorPluginSettings {
-	colors: Array<TextColor>;
-	version: string;
-
-	interactiveDelimiters: boolean;
-}
-
+// CONSTANTS
 export const CSS_COLOR_PREFIX = "ftc-color-"
 export const VAR_COLOR_PREFIX = "--ftc-color-"
 
+export const SETTINGS_VERSION = "3"
+
+export const DEFAULT_COLORS = [
+	new TextColor("#ff0000", `red`, false, false, 0, 0, 'A'),
+	new TextColor("#ea732a", `orange`, false, false, 0, 0, 'S'),
+	new TextColor("#f0cc2e", `yellow`, false, false, 0, 0, 'D'),
+	new TextColor("#bc18dc", `magenta`, false, false, 0, 0, 'F'),
+	new TextColor("#51070f", `green`, false, false, 0, 0, 'J'),
+	new TextColor("#28c883", `cyan`, false, false, 0, 0, 'K'),
+	new TextColor("#2778ff", `blue`, false, false, 0, 0, 'L'),
+	new TextColor("#123f59", `black`, false, false, 0, 0, 'Ö')];
+
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
-	colors: [
-		new TextColor("#ff0000", `red`, false, false, 0, 0, 'A'),
-		new TextColor("#ea732a", `orange`, false, false, 0, 0, 'S'),
-		new TextColor("#f0cc2e", `yellow`, false, false, 0, 0, 'D'),
-		new TextColor("#bc18dc", `magenta`, false, false, 0, 0, 'F'),
-		new TextColor("#51070f", `green`, false, false, 0, 0, 'J'),
-		new TextColor("#28c883", `cyan`, false, false, 0, 0, 'K'),
-		new TextColor("#2778ff", `blue`, false, false, 0, 0, 'L'),
-		new TextColor("#123f59", `black`, false, false, 0, 0, 'Ö')],
-	version: "2",
+	themes: [new TextColorTheme("default", DEFAULT_COLORS)],
+	themeIndex: 0,
+	version: "3",
 	interactiveDelimiters: true
+}
+
+
+export interface FastTextColorPluginSettings {
+	themes: Array<TextColorTheme>;
+	themeIndex: number;
+
+	version: string;
+	interactiveDelimiters: boolean;
+}
+
+export function getColors(settings: FastTextColorPluginSettings): TextColor[] {
+	return settings.themes[settings.themeIndex].colors;
+}
+
+export function addTheme(settings: FastTextColorPluginSettings, name: string, colors: TextColor[] = DEFAULT_COLORS) {
+	settings.themes.push(new TextColorTheme(name, colors));
+}
+
+export function selectNextTheme(settings: FastTextColorPluginSettings) {
+	settings.themeIndex = (settings.themeIndex + 1) % settings.themes.length;
+}
+
+export function selectPreviousTheme(settings: FastTextColorPluginSettings) {
+	settings.themeIndex = (settings.themes.length + settings.themeIndex - 1) % settings.themes.length;
+}
+
+export function deleteCurrentTheme(settings: FastTextColorPluginSettings) {
+	if (settings.themes.length <= 1) {
+		return;
+	}
+	settings.themes.slice(settings.themeIndex, 1);
+	settings.themeIndex = 0;
 }
 
 export class FastTextColorPluginSettingTab extends PluginSettingTab {
@@ -49,8 +83,42 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		// containerEl.createDiv().innerText = "Define your colors here. The numbers on the left indicate wich number key can be pressed to insert the color. Change the order of the colors to change which ones will be activated by the number keys. Be careful when changing the ID of the colors as this does not change the assignment in the notes."
 		containerEl.createEl('h1').innerText = "Colors";
 
+		new Setting(containerEl)
+			.setName("Theme")
+			.addDropdown(dd => {
+				let count = 0;
+				settings.themes.forEach(theme => {
+					dd.addOption(count.toString(), theme.name)
+					count++;
+				});
+				dd.setValue(settings.themeIndex.toString())
+				dd.onChange(value => {
+					settings.themeIndex = +value;
+				})
+			})
+			.addButton(btn => {
+				btn
+					.setIcon("plus")
+					.setTooltip("add new Theme")
+					.onClick(evt => {
+						new CreateNewThemeModal(this.app, settings).open();
+					})
+			})
+			.addButton(btn => {
+				btn
+					.setIcon("trash")
+					.setTooltip("delete theme")
+					.onClick(async evt => {
+						if (await confirmByModal(this.app, `Are you sure?\n The theme ${settings.themes[settings.themeIndex]} will no longer be available. `)) {
+							deleteCurrentTheme(settings);
+						}
+
+				})
+
+			})
+
 		let count = 1;
-		this.plugin.settings.colors.forEach((color: TextColor) => {
+		getColors(settings).forEach((color: TextColor) => {
 			this.createColorSetting(containerEl, color, count);
 			count++;
 		});
@@ -59,7 +127,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.setName("Add new Color")
 			.addText(txt => {
 				txt
-					.setValue(this.newId == '' ? (settings.colors.length + 1).toString() : this.newId)
+					.setValue(this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId)
 					.onChange(value => {
 						this.newId = value;
 					})
@@ -67,7 +135,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.addButton(btn => {
 				btn.setButtonText("+")
 					.onClick(async evt => {
-						settings.colors.push(new TextColor("#ffffff", this.newId == '' ? (settings.colors.length + 1).toString() : this.newId));
+						getColors(settings).push(new TextColor("#ffffff", this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId));
 						await this.plugin.saveSettings();
 						this.display();
 					})
@@ -86,11 +154,11 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.setName("Interactive delimiters")
 			.addToggle(tgl => {
 				tgl.setValue(settings.interactiveDelimiters)
-				.onChange(async value =>{
+					.onChange(async value => {
 						settings.interactiveDelimiters = value;
 						await this.plugin.saveSettings();
-				})
-		})
+					})
+			})
 	}
 
 	createColorSetting(container: HTMLElement, tColor: TextColor, count: number): void {
@@ -108,6 +176,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 		new Setting(container)
 			.setName(frag)
+			// .setClass("fadeInLeft")
+			// .setClass("ftc-settings-item")
 			.addButton(btn => {
 				btn
 					.setButtonText(`${tColor.keybind}`)

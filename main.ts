@@ -17,7 +17,7 @@ import {
 	MenuItem
 } from 'obsidian';
 import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
-import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings } from 'src/FastTextColorSettings';
+import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION } from 'src/FastTextColorSettings';
 import { TextColor } from 'src/color/TextColor';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
@@ -98,7 +98,7 @@ export default class FastTextColorPlugin extends Plugin {
 						.setIcon("palette");
 					// @ts-ignore
 					const submenu: Menu = item.setSubmenu();
-					this.settings.colors.forEach(tColor => {
+					getColors(this.settings).forEach(tColor => {
 						console.log(tColor.id);
 						
 						submenu.addItem((subitem) => {
@@ -135,9 +135,13 @@ export default class FastTextColorPlugin extends Plugin {
 		// this.settings = DEFAULT_SETTINGS; return; // DEBUG
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 
-		for (let i = 0; i < this.settings.colors.length; i++) {
-			let obj: TextColor = this.settings.colors[i]
-			this.settings.colors[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
+		if (+this.settings.version < +SETTINGS_VERSION) {
+			console.log("outdated Settings! Trying to update.")
+		}
+ 
+		for (let i = 0; i < getColors(this.settings).length; i++) {
+			let obj: TextColor = getColors(this.settings)[i]
+			getColors(this.settings)[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
 		}
 	}
 
@@ -178,7 +182,7 @@ export default class FastTextColorPlugin extends Plugin {
 			return;
 		}
 
-		let attributes = `bottom: 8.25em; grid-template-columns: ${"1fr ".repeat(this.settings.colors.length)}`;
+		let attributes = `bottom: 8.25em; grid-template-columns: ${"1fr ".repeat(getColors(this.settings).length)}`;
 
 		this.colorMenu.setAttribute("style", attributes);
 		this.colorMenu.setAttribute("id", "fast-color-menu");
@@ -189,8 +193,8 @@ export default class FastTextColorPlugin extends Plugin {
 		document.body.querySelector(".mod-vertical.mod-root")?.insertAdjacentElement("afterbegin", this.colorMenu);
 
 
-		for (let i = 0; i < Math.min(this.settings.colors.length, MAX_MENU_ITEMS); i++) {
-			this.createColorItem(this.colorMenu, this.settings.colors[i], i + 1, editor);
+		for (let i = 0; i < Math.min(getColors(this.settings).length, MAX_MENU_ITEMS); i++) {
+			this.createColorItem(this.colorMenu, getColors(this.settings)[i], i + 1, editor);
 		}
 
 		// have to apply it again, otherwise menu will not be centered.
@@ -214,8 +218,8 @@ export default class FastTextColorPlugin extends Plugin {
 		let { scope } = this;
 
 		// colors - number keys
-		for (let i = 0; i < this.settings.colors.length; i++) {
-			const tColor = this.settings.colors[i];
+		for (let i = 0; i < getColors(this.settings).length; i++) {
+			const tColor = getColors(this.settings)[i];
 			scope.register([], tColor.keybind, (event) => {
 				if (event.isComposing) {
 					return true;
@@ -362,7 +366,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 		this.style.innerHTML = '';
 		// dynamically create stylesheet.
-		this.settings.colors.forEach((tColor: TextColor) => {
+		getColors(this.settings).forEach((tColor: TextColor) => {
 			// root.style.setProperty(tColor.cssVariable, tColor.color);
 			// console.log(tColor.cssName);
 			this.style.innerHTML += tColor.getCssStyle() + "\n";

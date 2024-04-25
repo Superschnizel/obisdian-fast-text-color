@@ -112,7 +112,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 					colors[colors.length - 1].color = color;
 
 					if (colors.last()?.inside && settings.interactiveDelimiters) {
-						console.log("building")
+						// console.log("building")
 						if (stateFrom <= from + node.to && stateTo >= from + node.from) {
 							return true;
 						}

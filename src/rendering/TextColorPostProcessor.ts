@@ -5,10 +5,10 @@ import { CSS_COLOR_PREFIX } from 'src/FastTextColorSettings';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 
 export const textColorPostProcessor : MarkdownPostProcessor = (el, ctx) => {
-	console.log('postProcessing');
+	// console.log('postProcessing');
 	// console.log(el);
 	// console.log(el);
-	console.log(el.innerHTML);
+	// console.log(el.innerHTML);
 
 
 	let text = el.innerHTML;

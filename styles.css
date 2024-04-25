@@ -1,3 +1,20 @@
+/* https://github.com/animate-css/animate.css/blob/main/source/fading_entrances/fadeInLeft.css */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fadeInLeft {
+  animation-name: fadeInLeft;
+}
+
 /* color delimiter icon */
 
 .ftc-color-delimiter {
@@ -7,6 +24,12 @@
 }
 
  /* SETTINGS  */
+.ftc-settings-item {
+	animation-delay: 0s;
+	animation-duration: 0.5s;
+}
+
+
 .ftc-format-item {
     width: var(--size-4-6);
     height: var(--size-4-6);
@@ -74,6 +97,14 @@
  }
 
 
+.ftc-theme-name-error {
+	height: var(--size-4-4);
+	width: 100%;
+
+	text-align: right;
+	color: red;
+	font-size: var(--font-ui-smaller);
+}
 
 /*
 
