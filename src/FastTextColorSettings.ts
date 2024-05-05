@@ -25,7 +25,7 @@ export const DEFAULT_COLORS = [
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	themes: [new TextColorTheme("default", DEFAULT_COLORS)],
 	themeIndex: 0,
-	version: "3",
+	version: SETTINGS_VERSION,
 	interactiveDelimiters: true
 }
 
@@ -38,10 +38,14 @@ export interface FastTextColorPluginSettings {
 	interactiveDelimiters: boolean;
 }
 
-export function getColors(settings: FastTextColorPluginSettings): TextColor[] {
-	return settings.themes[settings.themeIndex].colors;
+export function getColors(settings: FastTextColorPluginSettings, index:number=-1): TextColor[] {
+	if (index == -1) {
+		index = settings.themeIndex;
+	}
+	return settings.themes[index].colors;
 }
 
+// THEME functions
 export function addTheme(settings: FastTextColorPluginSettings, name: string, colors: TextColor[] = DEFAULT_COLORS) {
 	settings.themes.push(new TextColorTheme(name, colors));
 }
@@ -62,15 +66,42 @@ export function deleteCurrentTheme(settings: FastTextColorPluginSettings) {
 	settings.themeIndex = 0;
 }
 
+// UPDATESETTINGS
+export function updateSettings(settings: any): FastTextColorPluginSettings {
+	switch (settings.version) {
+		case "1":
+		case "2":
+			const colors = settings.colors.map((color: TextColor) => {
+				return new TextColor(color.color, color.id, color.italic, color.bold, color.cap_mode.index, color.line_mode.index, color.keybind);
+			})
+			const outSettings: FastTextColorPluginSettings = {
+				themes: [new TextColorTheme("default", colors)],
+				themeIndex: 0,
+				version: SETTINGS_VERSION,
+				interactiveDelimiters: settings.interactiveDelimiters
+			}
+			return outSettings;
+
+		default:
+			console.log(`There is not update method for Settings Version ${settings.version}!`);
+
+			console.log(settings);
+			return DEFAULT_SETTINGS;
+	}
+}
+
 export class FastTextColorPluginSettingTab extends PluginSettingTab {
 	plugin: FastTextColorPlugin;
 
 	newId: string;
 
+	themeIndex: number;
+
 	constructor(app: App, plugin: FastTextColorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 		this.newId = ''
+		this.themeIndex = plugin.settings.themeIndex;
 	}
 
 
@@ -84,7 +115,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl('h1').innerText = "Colors";
 
 		new Setting(containerEl)
-			.setName("Theme")
+			.setName("Set active theme")
+			.setDesc("Set global active theme.")
 			.addDropdown(dd => {
 				let count = 0;
 				settings.themes.forEach(theme => {
@@ -94,6 +126,27 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 				dd.setValue(settings.themeIndex.toString())
 				dd.onChange(value => {
 					settings.themeIndex = +value;
+					this.plugin.saveSettings();
+					this.plugin.setCssVariables();
+					this.display();
+				})
+			})
+
+
+		new Setting(containerEl)
+			.setName("Edit themes")
+			.setDesc("Add new themes or edit existings ones.")
+			.setClass("ftc-settings-theme-header")
+			.addDropdown(dd => {
+				let count = 0;
+				settings.themes.forEach(theme => {
+					dd.addOption(count.toString(), theme.name)
+					count++;
+				});
+				dd.setValue(this.themeIndex.toString())
+				dd.onChange(value => {
+					this.themeIndex = +value;
+					this.display();
 				})
 			})
 			.addButton(btn => {
@@ -101,7 +154,12 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setIcon("plus")
 					.setTooltip("add new Theme")
 					.onClick(evt => {
-						new CreateNewThemeModal(this.app, settings).open();
+						const modal = new CreateNewThemeModal(this.app, settings);
+						modal.onSuccess(() => {
+							this.plugin.saveSettings();
+							this.display()
+						});
+						modal.open();
 					})
 			})
 			.addButton(btn => {
@@ -109,22 +167,25 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setIcon("trash")
 					.setTooltip("delete theme")
 					.onClick(async evt => {
-						if (await confirmByModal(this.app, `Are you sure?\n The theme ${settings.themes[settings.themeIndex]} will no longer be available. `)) {
+						if (await confirmByModal(this.app, `Are you sure?\n The theme ${settings.themes[settings.themeIndex].name} will no longer be available. `)) {
 							deleteCurrentTheme(settings);
 						}
-
-				})
+					})
 
 			})
 
+		const themeColorsEl = containerEl.createDiv();
+		themeColorsEl.addClass("ftc-theme-colors");
+
 		let count = 1;
-		getColors(settings).forEach((color: TextColor) => {
-			this.createColorSetting(containerEl, color, count);
+		getColors(settings, this.themeIndex).forEach((color: TextColor) => {
+			this.createColorSetting(themeColorsEl, color, count);
 			count++;
 		});
 
 		new Setting(containerEl)
-			.setName("Add new Color")
+			.setName("Add new color to theme")
+			.setClass("ftc-settings-theme-footer")
 			.addText(txt => {
 				txt
 					.setValue(this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId)
@@ -135,6 +196,11 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.addButton(btn => {
 				btn.setButtonText("+")
 					.onClick(async evt => {
+						if (getColors(settings).some(tColor => { return tColor.id == this.newId })) {
+							console.log(`color with id ${this.newId} already exists`);
+
+						}
+
 						getColors(settings).push(new TextColor("#ffffff", this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId));
 						await this.plugin.saveSettings();
 						this.display();
@@ -150,8 +216,10 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		// 			this.display();
 		// 		})
 		// })
+		containerEl.createEl('h1').innerText = "Other";
 		new Setting(containerEl)
 			.setName("Interactive delimiters")
+			.setDesc("Use interactive delimiter to change colors inside the editor.")
 			.addToggle(tgl => {
 				tgl.setValue(settings.interactiveDelimiters)
 					.onChange(async value => {
@@ -171,17 +239,18 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		key.innerText = `${tColor.id}`;
 
 		const exampletext = fragdiv.createDiv()
-		exampletext.addClass(`${CSS_COLOR_PREFIX}${tColor.id}`);
+		// exampletext.addClass(`${CSS_COLOR_PREFIX}${tColor.id}`);
+		exampletext.setAttr("style", tColor.getCssInlineStyle());
 		exampletext.innerText = `~={${tColor.id}}This is colored text=~`
 
 		new Setting(container)
 			.setName(frag)
 			// .setClass("fadeInLeft")
-			// .setClass("ftc-settings-item")
+			.setClass("ftc-settings-item")
 			.addButton(btn => {
 				btn
 					.setButtonText(`${tColor.keybind}`)
-					.setTooltip("keybinding")
+					.setTooltip("set keybinding")
 					.setClass("key-indicator")
 					.onClick(async evt => {
 						tColor.keybind = await getKeyBindWithModal(this.app);
@@ -189,7 +258,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
 					})
-				btn.buttonEl.addClass("ftc-format-left")
+				// btn.buttonEl.addClass("ftc-format-left")
 			})
 			.addButton(btn => {
 				btn
@@ -291,7 +360,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						if (await confirmByModal(this.app,
 							`Colored section whith the id "${tColor.id}" will no longer be colored until you add another color with that id.`,
 							`Delete color: ${tColor.id}`)) {
-							this.plugin.settings.colors.remove(tColor);
+							getColors(this.plugin.settings).remove(tColor);
 						}
 						await this.plugin.saveSettings();
 						this.display();

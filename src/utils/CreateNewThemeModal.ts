@@ -7,10 +7,14 @@ export class CreateNewThemeModal extends Modal {
 
 	errorDiv: HTMLElement;
 
+	private doOnSuccess: () => void;
+
 	constructor(app: App, settings: FastTextColorPluginSettings) {
 		super(app);
 
 		this.settings = settings;
+
+		this.name = "newTheme";
 	}
 
 	onOpen() {
@@ -20,9 +24,9 @@ export class CreateNewThemeModal extends Modal {
 		// contentEl.createDiv({text: ""});
 
 		new Setting(contentEl)
-			.setName("Theme name")
+			.setName(this.name)
 			.addText(txt => {
-				txt.setValue("newTheme")
+				txt.setValue(this.name)
 					.setPlaceholder("theme name")
 					.onChange(value => {
 						this.name = value;
@@ -38,18 +42,21 @@ export class CreateNewThemeModal extends Modal {
 				btn
 					.setButtonText("create")
 					.onClick(evt => {
-						if (this.evalNameErrors()) {
+						if (!this.evalNameErrors()) {
+							console.log(`Invalid name ${this.name}`);
 							return;
 						}
 
 						addTheme(this.settings, this.name, DEFAULT_COLORS);
+						this.doOnSuccess();
+						this.close();
 					})
 			})
 			.addButton(btn => {
 				btn
 					.setButtonText("cancel")
 					.onClick(evt => {
-						this.close()
+						this.close();
 				})
 			})
 
@@ -58,6 +65,10 @@ export class CreateNewThemeModal extends Modal {
 	onClose() {
 		let { contentEl } = this;
 		contentEl.empty();
+	}
+
+	onSuccess(callback:() => void) {
+		this.doOnSuccess = callback;
 	}
 
 	evalNameErrors() {

@@ -1,0 +1,120 @@
+/* SETTINGS  */
+
+.ftc-settings-theme-header {
+	border-radius: var(--radius-l) var(--radius-l) 0 0;
+	border: 2px solid var(--background-modifier-border);
+	border-bottom: none;
+
+	padding-left: var(--size-4-2);
+	padding-right: var(--size-4-2);
+}
+
+
+.ftc-theme-colors {
+	display: flex;
+	background-color: var(--background-primary-alt);
+	flex-direction: column;
+	padding-left: var(--size-4-4);
+	padding-right: var(--size-4-4);
+	padding-top: var(--size-4-2);
+	padding-bottom: var(--size-4-4);
+
+	border-left: 2px solid var(--background-modifier-border);
+	border-right: 2px solid var(--background-modifier-border);
+	justify-content: space-between;
+}
+
+.ftc-settings-theme-footer {
+	border-radius: 0 0 var(--radius-l) var(--radius-l);
+	border: 2px solid var(--background-modifier-border);
+	border-top: none;
+
+	padding-left: var(--size-4-2);
+	padding-right: var(--size-4-2);
+}
+
+.ftc-settings-item {
+	// animation-delay: 0s;
+	// animation-duration: 0.5s;
+	padding: var(--size-4-2) !important;
+	background-color: var(--background-primary);
+	border-radius: var(--radius-m);
+	border: 1px solid var(--background-modifier-border) !important;
+	margin-top: var(--size-4-2);
+}
+
+.ftc-format-item {
+	width: var(--size-4-6);
+	height: var(--size-4-6);
+	background-color: var(--interactive-normal);
+}
+
+.ftc-format-item-enabled {
+	width: var(--size-4-6);
+	height: var(--size-4-6);
+	background-color: var(--interactive-accent) !important;
+}
+
+
+.ftc-keybind-button {
+	width: var(--size-4-8);
+	height: var(--size-4-8);
+}
+
+// Format settings buttons
+
+.ftc-format-left {
+	border-radius: var(--radius-s) 0 0 var(--radius-s);
+}
+
+.ftc-format-middle {
+	border-radius: 0 0 0 0;
+	margin-left: calc(0px - var(--size-4-2));
+}
+
+.ftc-format-right {
+	border-radius: 0 var(--radius-s) var(--radius-s) 0;
+	margin-left: calc(0px - var(--size-4-2));
+}
+
+.key-indicator {
+	display: flex;
+	width: var(--size-4-8);
+	height: var(--size-4-8);
+	align-items: center;
+	justify-content: center;
+	border: 2px solid var(--background-modifier-border);
+	border-radius: 0.3em;
+}
+
+.ftc-name-div {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+	flex-direction: row;
+
+}
+
+.ftc-move-btn-left {
+	width: var(--size-4-6);
+	height: var(--size-4-6);
+	border-radius: var(--radius-s) 0 0 var(--radius-s);
+	padding: 0px;
+}
+
+.ftc-move-btn-right {
+	width: var(--size-4-6);
+	height: var(--size-4-6);
+	border-radius: 0 var(--radius-s) var(--radius-s) 0;
+	padding: 0px;
+	margin-left: calc(0px - var(--size-4-2));
+}
+
+.ftc-theme-name-error {
+	height: var(--size-4-4);
+	width: 100%;
+	text-align: right;
+	color: red;
+	font-size: var(--font-ui-smaller);
+}

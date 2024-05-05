@@ -12,7 +12,7 @@ export class TextColor {
 
 	keybind: string;
 
-	constructor(color: string, id: string, italic:boolean=false, bold:boolean=false, cap_mode_index:number=0, line_mode_index:number=0, keybind:string='') {
+	constructor(color: string, id: string, italic: boolean = false, bold: boolean = false, cap_mode_index: number = 0, line_mode_index: number = 0, keybind: string = '') {
 		this.color = color;
 		this.id = id;
 		this.keybind = keybind;
@@ -28,7 +28,7 @@ export class TextColor {
 		return `${CSS_COLOR_PREFIX}${this.id}`
 	}
 
-	getCssStyle(): string {
+	getCssClass(): string {
 		// what is going on?
 		return `.${CSS_COLOR_PREFIX}${this.id} { 
 				color : ${this.color}\n;
@@ -39,6 +39,15 @@ export class TextColor {
 				${VAR_COLOR_PREFIX}${this.id} : ${this.color};
 			    }`;
 	}
+
+	getCssInlineStyle(): string {
+		return `color : ${this.color}\n;
+				${this.italic ? "font-style: italic;" : ''}
+				${this.bold ? 'font-weight: bold;' : ''}
+				${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};` : ''}
+				${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;" : ''}
+				`
+	}
 }
 
 export class CycleState {
@@ -46,7 +55,7 @@ export class CycleState {
 	private states: string[];
 	index: number;
 
-	constructor(states: string[], index: number=0) {
+	constructor(states: string[], index: number = 0) {
 		this.states = states;
 
 		if (states.length <= 0) {
@@ -58,7 +67,7 @@ export class CycleState {
 		this.index = index;
 	}
 
-	public	cycle() {
+	public cycle() {
 		this.index = (this.index + 1) % this.states.length;
 		this.state = this.states[this.index];
 	}

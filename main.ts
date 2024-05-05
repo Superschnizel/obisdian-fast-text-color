@@ -17,7 +17,7 @@ import {
 	MenuItem
 } from 'obsidian';
 import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
-import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION } from 'src/FastTextColorSettings';
+import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION, updateSettings } from 'src/FastTextColorSettings';
 import { TextColor } from 'src/color/TextColor';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
@@ -100,7 +100,7 @@ export default class FastTextColorPlugin extends Plugin {
 					const submenu: Menu = item.setSubmenu();
 					getColors(this.settings).forEach(tColor => {
 						console.log(tColor.id);
-						
+
 						submenu.addItem((subitem) => {
 
 							subitem
@@ -108,8 +108,8 @@ export default class FastTextColorPlugin extends Plugin {
 								.setIcon("circle")
 								.onClick(evt => {
 									this.applyColor(tColor, editor);
-							});
-							
+								});
+
 							// @ts-ignore
 							(subitem.dom as HTMLElement).addClass(tColor.className());
 							// @ts-ignore
@@ -133,15 +133,23 @@ export default class FastTextColorPlugin extends Plugin {
 
 	async loadSettings() {
 		// this.settings = DEFAULT_SETTINGS; return; // DEBUG
+		const rawSettings = await this.loadData();
+
+		if (+rawSettings.version < +SETTINGS_VERSION) {
+			console.log("outdated Settings! Trying to update.")
+			this.settings = updateSettings(rawSettings)
+			await this.saveData(this.settings);
+			return;
+		}
+
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 
-		if (+this.settings.version < +SETTINGS_VERSION) {
-			console.log("outdated Settings! Trying to update.")
-		}
- 
-		for (let i = 0; i < getColors(this.settings).length; i++) {
-			let obj: TextColor = getColors(this.settings)[i]
-			getColors(this.settings)[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
+		for (let j = 0; j < this.settings.themes.length; j++) {
+			const colors = getColors(this.settings, j);
+			for (let i = 0; i < colors.length; i++) {
+				let obj: TextColor = colors[i]
+				colors[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
+			}
 		}
 	}
 
@@ -369,7 +377,7 @@ export default class FastTextColorPlugin extends Plugin {
 		getColors(this.settings).forEach((tColor: TextColor) => {
 			// root.style.setProperty(tColor.cssVariable, tColor.color);
 			// console.log(tColor.cssName);
-			this.style.innerHTML += tColor.getCssStyle() + "\n";
+			this.style.innerHTML += tColor.getCssClass() + "\n";
 
 		});
 

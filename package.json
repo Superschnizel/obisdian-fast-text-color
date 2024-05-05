@@ -29,6 +29,7 @@
 	"dependencies": {
 		"@codemirror/language": "^6.10.1",
 		"@lezer/generator": "^1.7.0",
+		"node-sass": "^9.0.0",
 		"ts-node": "^10.9.2"
 	}
 }

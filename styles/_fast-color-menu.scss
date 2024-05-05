@@ -1,0 +1,91 @@
+/*
+
+The general structure of the menu is adapted from Chetachi's cMenu https://github.com/chetachiezikeuzor/cMenu-Plugin
+
+*/
+
+#fast-color-menu {
+  width: auto;
+  height: auto;
+  padding: 3px;
+  display: grid;
+  user-select: none;
+  border-radius: 6px;
+  position: absolute;
+  transition: 200ms ease;
+  min-width: fit-content;
+  justify-content: space-around;
+  z-index: var(--layer-status-bar);
+
+  /* box-shadow: 0px 3px 32px rgb(31 38 135 / 15%); */
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+
+  .fast-color-menu-item {
+    width: var(--size-4-8);
+    height: var(--size-4-8);
+    color: white;
+    margin: 2px;
+    border: none;
+    display: flex;
+    cursor: pointer;
+    padding: 5px 6px;
+    box-shadow: none;
+    margin-left: 3px;
+    margin-right: 3px;
+    position: relative;
+    border-radius: 3px;
+    font-size: initial !important;
+    background-color: var(--background-primary-alt);
+    text-shadow: 0 0 2px #000;
+  }
+}
+
+.fast-color-menu-item.number-icon {
+  color: white;
+}
+
+.menu.fast-color-menu {
+  /* min-width: 140px; */
+  /* max-width: 225px; */
+  /* max-height: 180px; */
+  display: flex;
+  width: fit-content;
+  height: fit-content;
+  padding-left: 0em;
+  padding: 0;
+  margin: 0 auto;
+  align-items: center;
+  border-radius: 6px;
+  font-size: 14px;
+  overflow-x: hidden;
+  position: fixed;
+  animation: fade 300ms ease-in-out;
+  background-color: var(--background-primary-alt);
+  box-shadow: 0px 3px 25px rgba(31, 38, 135, 0.1);
+  border: 1px solid var(--background-modifier-border);
+
+  .menu-item {
+    .menu-item-icon {
+      display: inline-block;
+      width: var(--size-4-5);
+      height: var(--size-4-5);
+      background-color: aqua;
+      border-radius: var(--radius-s);
+      border: var(--border-width) solid var(--background-modifier-border);
+    }
+
+    display: flex;
+    align-items: center;
+    padding: var(--size-4-2);
+    cursor: pointer;
+    font-size: 14px;
+    height: fit-content;
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
+}
+
+
