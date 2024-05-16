@@ -249,7 +249,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.setClass("ftc-settings-item")
 			.addButton(btn => {
 				btn
-					.setButtonText(`${tColor.keybind}`)
+					.setButtonText(`${tColor.keybind}`.toUpperCase())
 					.setTooltip("set keybinding")
 					.setClass("key-indicator")
 					.onClick(async evt => {
@@ -371,11 +371,11 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 // moving up means decreasing index
 function moveColor(index: number, direction: number, settings: FastTextColorPluginSettings) {
-	if ((direction < 0 && index == 0) || (direction > 0 && index == settings.colors.length - 1)) {
+	if ((direction < 0 && index == 0) || (direction > 0 && index == getColors(settings).length - 1)) {
 		return;
 	}
 
-	let temp = settings.colors[index + direction];
-	settings.colors[index + direction] = settings.colors[index];
-	settings.colors[index] = temp;
+	let temp = getColors(settings)[index + direction];
+	getColors(settings)[index + direction] = getColors(settings)[index];
+	getColors(settings)[index] = temp;
 }

@@ -15,19 +15,44 @@ import { SyntaxNodeRef } from "@lezer/common"
 import { ColorWidget } from "src/widgets/ColorWidget";
 import { CSS_COLOR_PREFIX } from "../FastTextColorSettings";
 import { settingsFacet } from "src/SettingsFacet";
+import { editorLivePreviewField } from "obsidian";
 
 class TextColorViewPlugin implements PluginValue {
 	decorations: DecorationSet;
+	notLivePreview: boolean;
 
 	constructor(view: EditorView) {
 		this.decorations = this.buildDecorations(view);
 	}
 
 	update(update: ViewUpdate) {
-		// console.log("view plugin updated")
+		// console.log(`update: ${isLivePreview(update.state)} ${update.docChanged ? "docChanged" : ''}${update.viewportChanged ? "viewportChanged" : ''}${update.focusChanged ? "focusChanged" : ''}${update.selectionSet ? "selectionSet" : ''}${update.geometryChanged ? "geometryChanged" : ''}${update.changes.desc.toJSON()}`);
+		
+		if (!isLivePreview(update.state)) {
+			// clear decorations
+			if (this.decorations.size > 0) {
+				this.decorations = new RangeSetBuilder<Decoration>().finish();
+			}
+			this.notLivePreview = true;
+
+			return;
+		}
+
+		// this is a hack to enable instant switch when source mode is turned of.
+		// TODO: maybe there is a better way of handling all this.
+		if (this.notLivePreview) {
+
+			this.notLivePreview = false;
+			this.decorations = this.buildDecorations(update.view);
+			return;
+		}
+
 		if (update.docChanged || update.viewportChanged || update.selectionSet) {
+			
 			this.decorations = this.buildDecorations(update.view);
 		}
+
+
 	}
 
 	destroy() { }
@@ -69,6 +94,11 @@ class TextColorViewPlugin implements PluginValue {
 	}
 }
 
+function isLivePreview(state: EditorState): boolean {
+	// @ts-ignore some strange private field not being assignable
+	return state.field(editorLivePreviewField).valueOf();
+}
+
 function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilder<Decoration>, state: EditorState) {
 	// console.log("handling expression")
 
@@ -78,6 +108,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 	const stateFrom = state.selection.main.from;
 	const stateTo = state.selection.main.to;
 	const settings = state.facet(settingsFacet);
+
 
 	ExpressionNode.node.toTree().iterate({ // toTree allocates a tree, this might be a point of optimization. TODO optimization
 		enter(node) {

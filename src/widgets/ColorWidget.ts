@@ -1,5 +1,5 @@
 import { EditorView, WidgetType } from "@codemirror/view";
-import { CSS_COLOR_PREFIX, VAR_COLOR_PREFIX } from "../FastTextColorSettings"
+import { CSS_COLOR_PREFIX, getColors, VAR_COLOR_PREFIX } from "../FastTextColorSettings"
 import { Menu } from "obsidian";
 import { settingsFacet } from "src/SettingsFacet";
 
@@ -44,7 +44,7 @@ export class ColorWidget extends WidgetType {
 		div.onmouseover = (event) => {
 			if (this.menu == null) {
 				this.menu = new Menu();
-				settings.colors.forEach(tColor => {
+				getColors(settings).forEach(tColor => {
 					this.menu!.addItem(item => {
 						item
 							.setTitle(tColor.id)
