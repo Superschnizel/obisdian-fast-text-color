@@ -15,4 +15,6 @@ export const
   EOF = 13,
   Unfinished = 14,
   ColorEOF = 15,
-  ColorWS = 16
+  ColorWS = 16,
+  CodeSection = 17,
+  CODE = 18

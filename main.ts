@@ -388,3 +388,4 @@ export default class FastTextColorPlugin extends Plugin {
 
 
 
+

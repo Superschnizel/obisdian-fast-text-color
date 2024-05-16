@@ -1,4 +1,6 @@
-@top TextColor { (char|Expression|Unfinished|ENDLN|RMarker)* }
+@top TextColor { (char|Expression|Unfinished|ENDLN|RMarker|CodeSection)* }
+
+CodeSection { CODE (char|Expression|Unfinished|ENDLN|RMarker)* CODE }
 
 Expression { TcLeft TcRight }
 
@@ -20,8 +22,9 @@ Text { char+ }
   RMarker { "=~" }
   EOF { @eof }
   ENDLN { "\n\n" }
+  CODE {"`"}
 
-  char { $[\n\r\t\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{10ffff}\\"] | "\\" esc }
+  char { $[\n\r\t\u{20}\u{21}\u{23}-\u{5b}\u{5d}-\u{5f}\u{61}-\u{10ffff}\\"] | "\\" esc }
   esc  { $["\\\/bfnrt] | "u" hex hex hex hex }
   hex  { $[0-9a-fA-F] }
 

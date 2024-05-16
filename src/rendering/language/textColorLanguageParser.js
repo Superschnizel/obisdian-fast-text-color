@@ -2,15 +2,15 @@
 import {LRParser, LocalTokenGroup} from "@lezer/lr"
 export const parser = LRParser.deserialize({
   version: 14,
-  states: "$nQQOPOOO`OQO'#C_OnOPO'#C^OOOO'#Cm'#CmQQOPOOOOOO'#Ca'#CaO!POQO,59UOOOO,58y,58yOOOO,59U,59UO![OQO'#C_OOOO'#Cn'#CnO!dOPO'#CeOOOO'#Cf'#CfO!uOPO'#CoO#WOPO'#CdO#WOPO'#CdO#fOPO'#C^OOOO,58x,58xOOOO-E6k-E6kOOOO,58{,58{OOOO1G.p1G.pO#nOQO'#CaOOOO-E6l-E6lOOOO,59Z,59ZOOOO-E6m-E6mOOOO,59O,59OO#WOPO,59OOOOO1G.j1G.j",
-  stateData: "#v~OSPOZRO[ROeRO~OUUOVTO_WO`WO~OSXOZ[O[[O][OeYO~OVcO_dO`dO~OUeOVTO~OeYOSXXZXX[XX]XX~OeYOScXZcX[cX]cX~OSXOZ[O[[O][O~OSXOeYO~OVcO~OSZ~",
-  goto: "#TdPPepP{PP!P!T![PPP!fPP!j!p!xSROSZ]Q^_`jSQOSZ`Q^_`jTVPXTaQ`S_Q`Rg]QWQSi^_RkjTROSQSORbSUZQ]`RfZS^Q`Sh^jRj_",
-  nodeNames: "⚠ TextColor Expression TcLeft LMarker Description Color InnerMarker TcRight Text REnd RMarker ENDLN EOF Unfinished ColorEOF ColorWS",
-  maxTerm: 21,
+  states: "%dQQOPOOOcOQO'#C_OqOPO'#C^O!SOPO'#CmOOOO'#Co'#CoQQOPOOOOOO'#Ca'#CaO!eOQO,59UOOOO,58y,58yOOOO,59U,59UO!pOQO'#C_OOOO'#Cp'#CpO!xOPO'#CeOOOO'#Cf'#CfO#ZOPO'#CqO#lOPO'#CdO#lOPO'#CdO#zOPO'#C^OOOO,58x,58xOOOO'#Cr'#CrO$SOPO,59XOOOO,59X,59XOOOO-E6m-E6mOOOO,58{,58{OOOO1G.p1G.pO$eOQO'#CaOOOO-E6n-E6nOOOO,59],59]OOOO-E6o-E6oOOOO,59O,59OO#lOPO,59OOOOO-E6p-E6pOOOO1G.s1G.sOOOO1G.j1G.j",
+  stateData: "$m~OSPOZSO[SObROhSO~OUVOVUO_XO`XO~OSYOZ]O[]O]]OhZO~OSPOZcO[cObeOhcO~OVgO_hO`hO~OUiOVUO~OhZOSXXZXX[XX]XX~OhZOSeXZeX[eX]eX~OSYOZ]O[]O]]O~OSYOhZO~OSPOZcO[cObpOhcO~OVgO~OSZ~",
+  goto: "#lgPPhwP!UPP!Y!^!ePPP!oPP!wP!{#R#Z#fSSOTY^Q_`anTcRdWQORTdZaQ_`anTWPYTbQaS`QaRk^QXQSm_`RqnSSOTTcRdTSOTQTORfTU[Q^aRj[S_QaSl_nRn`QdRRod",
+  nodeNames: "⚠ TextColor Expression TcLeft LMarker Description Color InnerMarker TcRight Text REnd RMarker ENDLN EOF Unfinished ColorEOF ColorWS CodeSection CODE",
+  maxTerm: 24,
   skippedNodes: [0],
-  repeatNodeCount: 3,
-  tokenData: "%Z~RaXY!WYZ!]]^!Wpq!Wqr!Wrs!Ws!_!W!_!`!j!`#O!W#O#P!w#P#r!W#r#s$k#s;'S!W;'S;=`%O<%l~!W~O!W~~%U~!]Oe~~!bPe~YZ!e~!jO[~~!oPe~#r#s!r~!wOZ~~!|Xe~rs!W!P!Q!W#O#P!W#U#V!W#Y#Z!W#b#c!W#f#g!W#h#i!W#i#j#i~#lR!Q![#u!c!i#u#T#Z#u~#xR!Q![$R!c!i$R#T#Z$R~$UR!Q![$_!c!i$_#T#Z$_~$bR!Q![!W!c!i!W#T#Z!W~$pPe~!_!`$s~$vP#o#p$y~%OOS~~%RP;=`<%l!W~%ZO]~",
+  repeatNodeCount: 4,
+  tokenData: "%f~RcXY!^YZ!c]^!^pq!^qr!^rs!^s!_!^!_!`!p!`#O!^#O#P!}#P#S!^#S#T$q#T#r!^#r#s$v#s;'S!^;'S;=`%Z<%l~!^~O!^~~%a~!cOh~~!hPh~YZ!k~!pO[~~!uPh~#r#s!x~!}OZ~~#SXh~rs!^!P!Q!^#O#P!^#U#V!^#Y#Z!^#b#c!^#f#g!^#h#i!^#i#j#o~#rR!Q![#{!c!i#{#T#Z#{~$OR!Q![$X!c!i$X#T#Z$X~$[R!Q![$e!c!i$e#T#Z$e~$hR!Q![!^!c!i!^#T#Z!^~$vOb~~${Ph~!_!`%O~%RP#o#p%U~%ZOS~~%^P;=`<%l!^~%fO]~",
   tokenizers: [1, new LocalTokenGroup("!X~R[X^wpqw#q#r|#y#zw$f$gw#BY#BZw$IS$I_w$I|$JOw$JT$JUw$KV$KWw&FU&FVw~~!R~|O`~~!ROV~~!WO_~~", 54, 6)],
   topRules: {"TextColor":[0,1]},
-  tokenPrec: 127
+  tokenPrec: 164
 })
