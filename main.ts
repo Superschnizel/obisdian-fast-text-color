@@ -17,7 +17,7 @@ import {
 	MenuItem
 } from 'obsidian';
 import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
-import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION, updateSettings } from 'src/FastTextColorSettings';
+import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION, updateSettings, CSS_COLOR_PREFIX } from 'src/FastTextColorSettings';
 import { TextColor } from 'src/color/TextColor';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
@@ -51,7 +51,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 		this.registerEditorExtension(textColorParserField);
 		this.registerEditorExtension(textColorViewPlugin);
-		this.registerMarkdownPostProcessor(textColorPostProcessor);
+		this.registerMarkdownPostProcessor((el,ctx)=>{ textColorPostProcessor(el,ctx,this.settings); });
 
 		this.settingsCompartment = new Compartment();
 		this.settingsExtension = this.settingsCompartment.of(settingsFacet.of(this.settings));
@@ -170,6 +170,11 @@ export default class FastTextColorPlugin extends Plugin {
 	}
 
 	// create and open the color menu
+	/**
+	 * opens the color menu and pushed the scope onto the keybindings.
+	 *
+	 * @param {Editor} editor - [TODO:description]
+	 */
 	openColorMenu(editor: Editor) {
 		// const cursorPos = editor.getCursor('from');
 		// const cursorOffset = editor.posToOffset(cursorPos);
@@ -359,6 +364,11 @@ export default class FastTextColorPlugin extends Plugin {
 			.buttonEl.setAttr("style", `background-color: ${tColor.color}`);
 	}
 
+	/**
+	 * creates the stylesheet needed for the colors in the root of the document.
+	 * A different set of classes is created for each theme.
+	 *
+	 */
 	setCssVariables() {
 		if (!this.style) {
 			var root = document.querySelector(':root');
@@ -374,12 +384,17 @@ export default class FastTextColorPlugin extends Plugin {
 
 		this.style.innerHTML = '';
 		// dynamically create stylesheet.
-		getColors(this.settings).forEach((tColor: TextColor) => {
-			// root.style.setProperty(tColor.cssVariable, tColor.color);
-			// console.log(tColor.cssName);
-			this.style.innerHTML += tColor.getCssClass() + "\n";
+		for (let i = 0; i < this.settings.themes.length; i++) {
+			getColors(this.settings, i).forEach((tColor: TextColor) => {
 
-		});
+				const theme = this.settings.themes[i]
+				const className =`.${CSS_COLOR_PREFIX}${theme.name}-${tColor.id}`;
+				let cssClass = 
+					`${className} {\n${tColor.getInnerCss()}}`
+				
+				this.style.innerHTML += cssClass + "\n";
+			});
+		}
 
 	}
 }

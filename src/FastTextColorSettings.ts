@@ -38,6 +38,15 @@ export interface FastTextColorPluginSettings {
 	interactiveDelimiters: boolean;
 }
 
+// Settings Functions.
+
+/**
+ * Get the colors of the current selected theme or the theme given by the index.
+ *
+ * @param {FastTextColorPluginSettings} settings - the plugin settings
+ * @param {number} [index] - the index.
+ * @returns {TextColor[]} 
+ */
 export function getColors(settings: FastTextColorPluginSettings, index:number=-1): TextColor[] {
 	if (index == -1) {
 		index = settings.themeIndex;
@@ -45,11 +54,33 @@ export function getColors(settings: FastTextColorPluginSettings, index:number=-1
 	return settings.themes[index].colors;
 }
 
+
+/**
+ * get the current theme
+ *
+ * @param {FastTextColorPluginSettings} settings - the plugin settings.
+ */
+export function getCurrentTheme(settings:FastTextColorPluginSettings) {
+	return settings.themes[settings.themeIndex];	
+}
+
 // THEME functions
+/**
+ * add a new theme to the settings. will contain default colors.
+ *
+ * @param {FastTextColorPluginSettings} settings - the plugin settings.
+ * @param {string} name - the name of the new theme.
+ * @param {TextColor[]} [DEFAULT_COLORS] - custom colors can be set.
+ */
 export function addTheme(settings: FastTextColorPluginSettings, name: string, colors: TextColor[] = DEFAULT_COLORS) {
 	settings.themes.push(new TextColorTheme(name, colors));
 }
 
+/**
+ * Changes the current index in the settings to the next.
+ *
+ * @param {FastTextColorPluginSettings} settings - the plugin settings.
+ */
 export function selectNextTheme(settings: FastTextColorPluginSettings) {
 	settings.themeIndex = (settings.themeIndex + 1) % settings.themes.length;
 }
@@ -67,6 +98,12 @@ export function deleteCurrentTheme(settings: FastTextColorPluginSettings) {
 }
 
 // UPDATESETTINGS
+/**
+ * Update the settings if their version is not current.
+ *
+ * @param {any} settings - the plugin settings.
+ * @returns {FastTextColorPluginSettings} 
+ */
 export function updateSettings(settings: any): FastTextColorPluginSettings {
 	switch (settings.version) {
 		case "1":

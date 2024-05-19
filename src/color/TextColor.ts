@@ -40,6 +40,20 @@ export class TextColor {
 			    }`;
 	}
 
+	/**
+	 * get the inner css of the class for the color.
+	 *
+	 * @returns {string} the inner css.
+	 */
+	getInnerCss(): string {
+		return `color : ${this.color};\n` +
+				`${this.italic ? "font-style: italic;\n" : ''}` +
+				`${this.bold ? 'font-weight: bold;\n' : ''}` +
+				`${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};\n` : ''}` +
+				`${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;\n" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;\n" : ''}`;
+	}
+
+
 	getCssInlineStyle(): string {
 		return `color : ${this.color}\n;
 				${this.italic ? "font-style: italic;" : ''}
