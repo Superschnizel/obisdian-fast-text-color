@@ -1,9 +1,9 @@
 {
 	"id": "fast-text-color",
 	"name": "Fast Text Color",
-	"version": "0.1.8",
+	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Quickly apply fully integrated text coloring and formatting with a personalised and keyboard-centric interface.",
+	"description": "Quickly apply fully integrated text coloring and formatting with a custom syntax and a keyboard-centric interface.",
 	"author": "Leon Holtmeier",
 	"authorUrl": "https://github.com/Superschnizel",
 	"fundingUrl": "https://ko-fi.com/superschnizel",

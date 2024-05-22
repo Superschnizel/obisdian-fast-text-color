@@ -12,7 +12,10 @@ export class TextColor {
 
 	keybind: string;
 
-	constructor(color: string, id: string, italic: boolean = false, bold: boolean = false, cap_mode_index: number = 0, line_mode_index: number = 0, keybind: string = '') {
+
+	className : string;
+
+	constructor(color: string, id: string, themeName: string,italic: boolean = false, bold: boolean = false, cap_mode_index: number = 0, line_mode_index: number = 0, keybind: string = '') {
 		this.color = color;
 		this.id = id;
 		this.keybind = keybind;
@@ -22,10 +25,8 @@ export class TextColor {
 		this.bold = bold;
 		this.cap_mode = new CycleState(['normal', 'all_caps', 'small_caps'], cap_mode_index);
 		this.line_mode = new CycleState(['none', 'underline', 'overline', 'line-through'], line_mode_index);
-	}
 
-	className(): string {
-		return `${CSS_COLOR_PREFIX}${this.id}`
+		this.className = `${CSS_COLOR_PREFIX}${themeName}-${this.id}`
 	}
 
 	getCssClass(): string {

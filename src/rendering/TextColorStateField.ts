@@ -31,7 +31,7 @@ export const textColorParserField : StateField<{tree : Tree, fragment : readonly
 		);
 
 		let fragments = TreeFragment.applyChanges(value.fragment, changed_ranges);
-		const text = transaction.state.doc.toString();
+		// const text = transaction.state.doc.toString();
 		const tree = textColorLanguage.parser.parse(new DocInput(transaction.state.doc), fragments);
 		fragments = TreeFragment.addTree(tree, fragments);
 		

@@ -1,28 +1,14 @@
-import { MarkdownPostProcessor, MarkdownPostProcessorContext } from 'obsidian'
-import { textColorLanguage } from './language/textColorLanguage';
-import { type ChangedRange, type Tree, TreeFragment } from '@lezer/common';
+import { MarkdownPostProcessorContext } from 'obsidian'
+import { Tree } from "@lezer/common";
 import { CSS_COLOR_PREFIX, FastTextColorPluginSettings, getCurrentTheme } from 'src/FastTextColorSettings';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 
 export const textColorPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcessorContext, settings: FastTextColorPluginSettings) => {
-	// console.log('postProcessing');
-	// console.log(el.innerHTML);
-	// console.log(el.innerHTML);
-
-	// console.log(el.parentElement?.tagName)
-
-	let themeName = ctx.frontmatter["ftcTheme"] ?? getCurrentTheme(settings).name;
 
 
-	// el.childNodes.forEach(child => {
-	// 	recurseReplace(child, themeName);
-	// });
-	//
-	// console.log(el.outerHTML);
-	//
-	// el.innerHTML = el.innerHTML.replace("&lt;", '<').replace("&gt;", '>');
-	//
-	// return;
+	let themeName = ctx.frontmatter ? ctx.frontmatter["ftcTheme"] : null;
+	themeName = themeName ? themeName : getCurrentTheme(settings).name;
+
 
 	// This is a hacky way of doing this, but every other possibility seemed incredibly convoluted.
 	// For now to handly the codeblocks will require these weird splits.
@@ -55,30 +41,16 @@ export const textColorPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcess
 
 	}
 
-	// split.forEach(codeOpenSplit => {
-	// 	console.log(codeOpenSplit);
-	// 	if (count % 2 == 1) {
-	// 		inner += codeOpenSplit;
-	// 		return;
-	// 	}
-	//
-	// 	codeOpenSplit = codeOpenSplit.replace(PREFIX, (match) => {
-	// 		return `<span class="${CSS_COLOR_PREFIX}${themeName}-${match.slice(3, match.length - 1)}">`;
-	// 	}).replace(SUFFIX, "</span>")
-	//
-	// 	inner += codeOpenSplit;
-	// });
-
 	el.innerHTML = inner;
-
-
-
-	// very simple version.. this does not like having +- somewhere in the text
-	// TODO
-
-
 }
 
+/**
+ * DEPRECATED - leaving here because it might be needed at some point
+ *
+ * @param {Node} node - [TODO:description]
+ * @param {string} themeName - [TODO:description]
+ * @returns {[TODO:type]} [TODO:description]
+ */
 function recurseReplace(node: Node, themeName: string) {
 
 	if (node.nodeName == 'CODE') {
@@ -101,6 +73,13 @@ function recurseReplace(node: Node, themeName: string) {
 	});
 }
 
+/**
+ * DEPRECATED - leaving here because it micht be needed at some point.
+ *
+ * @param {Tree} tree - [TODO:description]
+ * @param {string} text - [TODO:description]
+ * @returns {string} [TODO:description]
+ */
 function colorTextWithTree(tree: Tree, text: string): string {
 	// need to parse similar to view plugin
 

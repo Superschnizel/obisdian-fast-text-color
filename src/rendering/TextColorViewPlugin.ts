@@ -7,7 +7,6 @@ import {
 	PluginValue,
 	ViewPlugin,
 	ViewUpdate,
-	WidgetType,
 } from "@codemirror/view";
 import { textColorParserField } from "./TextColorStateField";
 import { MarkerWidget } from "../widgets/MarkerWidget"
@@ -15,7 +14,7 @@ import { SyntaxNodeRef } from "@lezer/common"
 import { ColorWidget } from "src/widgets/ColorWidget";
 import { CSS_COLOR_PREFIX, getCurrentTheme } from "../FastTextColorSettings";
 import { settingsFacet } from "src/SettingsFacet";
-import { editorInfoField, editorLivePreviewField, MarkdownView } from "obsidian";
+import { editorInfoField, editorLivePreviewField, livePreviewState, MarkdownView } from "obsidian";
 
 class TextColorViewPlugin implements PluginValue {
 	decorations: DecorationSet;
@@ -26,12 +25,11 @@ class TextColorViewPlugin implements PluginValue {
 	}
 
 	update(update: ViewUpdate) {
-		// console.log(`update: ${isLivePreview(update.state)} ${update.docChanged ? "docChanged" : ''}${update.viewportChanged ? "viewportChanged" : ''}${update.focusChanged ? "focusChanged" : ''}${update.selectionSet ? "selectionSet" : ''}${update.geometryChanged ? "geometryChanged" : ''}${update.changes.desc.toJSON()}`);
-		
+
 		if (!isLivePreview(update.state)) {
 			// clear decorations
 			if (this.decorations.size > 0) {
-				this.decorations = new RangeSetBuilder<Decoration>().finish();
+				this.decorations = new RangeSetBuilder < Decoration > ().finish();
 			}
 			this.notLivePreview = true;
 
@@ -47,23 +45,19 @@ class TextColorViewPlugin implements PluginValue {
 			return;
 		}
 
-		if (update.docChanged || update.viewportChanged || update.selectionSet) {
-			
+		const selectionChanged = update.selectionSet && !update.view.plugin(livePreviewState)?.mousedown;
+
+		if (update.docChanged || update.viewportChanged || selectionChanged) {
+
 			this.decorations = this.buildDecorations(update.view);
 		}
-
 
 	}
 
 	destroy() { }
 
 	buildDecorations(view: EditorView): DecorationSet {
-		const builder = new RangeSetBuilder<Decoration>();
-
-		// console.log('building decorations')
-		// console.log(`viewport: ${view.viewport.from}-${view.viewport.to}`)
-		//
-		// console.log(settings.version);
+		const builder = new RangeSetBuilder < Decoration > ();
 
 		for (let { from, to } of view.visibleRanges) {
 			view.state.field(textColorParserField).tree.iterate({
@@ -94,6 +88,12 @@ class TextColorViewPlugin implements PluginValue {
 	}
 }
 
+/**
+ * Determines if the editor is in live Preview Mode
+ *
+ * @param {EditorState} state
+ * @returns {boolean} 
+ */
 function isLivePreview(state: EditorState): boolean {
 	// @ts-ignore some strange private field not being assignable
 	return state.field(editorLivePreviewField).valueOf();
@@ -107,8 +107,7 @@ function isLivePreview(state: EditorState): boolean {
  * @param {EditorState} state
  */
 function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilder<Decoration>, state: EditorState) {
-	// console.log("handling expression")
-
+	// figure out bounds and create stack
 	const from = ExpressionNode.from;
 	let colorStack: { color: string, inside: boolean }[] = []; // handle recursive coloring with stack
 
@@ -126,6 +125,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 
 			switch (node.type.name) {
 				case "RMarker":
+					// =~
 					let inside = colorStack.pop()?.inside;
 					if (inside) {
 						return true;
@@ -140,6 +140,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 					return true;
 
 				case "TcLeft":
+					// ~={id}
 					if (colorStack.last()?.inside) {
 						return true;
 					}
@@ -148,18 +149,17 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 					return true;
 
 				case "Color":
-					// console.log('color')
 					let color = state.sliceDoc(from + node.from, from + node.to);
 					colorStack[colorStack.length - 1].color = color;
 
 					if (colorStack.last()?.inside && settings.interactiveDelimiters) {
-						// console.log("building")
 						if (stateFrom <= from + node.to && stateTo >= from + node.from) {
 							return true;
 						}
 
 
-						builder.add(node.from + from, node.to + from, Decoration.replace({ widget: new ColorWidget(color, node.from + from, node.to + from, ExpressionNode.to), block: false }))
+						const widget = new ColorWidget(color, node.from + from, node.to + from, ExpressionNode.to, themeName);
+						builder.add(node.from + from, node.to + from, Decoration.replace({ widget: widget, block: false }))
 					}
 
 					return true;
@@ -186,9 +186,9 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
  * @param {EditorState} state 
  * @returns {string} the theme name if found, else empty string.
  */
-function getThemeFromFrontmatter(state:EditorState) : string {
+function getThemeFromFrontmatter(state: EditorState): string {
 	const editorInfo = state.field(editorInfoField);
-	const file = ( editorInfo as MarkdownView).file;
+	const file = (editorInfo as MarkdownView).file;
 
 	if (!file) {
 		return '';
@@ -204,6 +204,7 @@ function getThemeFromFrontmatter(state:EditorState) : string {
 	return name ? name : '';
 }
 
+// create Plugin with specification and make it available.
 const pluginSpec: PluginSpec<TextColorViewPlugin> = {
 	decorations: (value: TextColorViewPlugin) => value.decorations,
 };

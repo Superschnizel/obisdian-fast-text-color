@@ -1,5 +1,4 @@
 import {
-	App,
 	Editor,
 	EditorPosition,
 	MarkdownView,
@@ -14,7 +13,8 @@ import {
 	HoverParent,
 	Scope,
 	ButtonComponent,
-	MenuItem
+	MenuItem,
+	MarkdownFileInfo
 } from 'obsidian';
 import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
 import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION, updateSettings, CSS_COLOR_PREFIX } from 'src/FastTextColorSettings';
@@ -24,7 +24,7 @@ import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
 import { textColorParserField } from 'src/rendering/TextColorStateField';
 import { textColorPostProcessor } from 'src/rendering/TextColorPostProcessor'
 import { syntaxTree } from "@codemirror/language";
-import { EditorState, Prec, Extension, Compartment } from "@codemirror/state";
+import { EditorState, Prec, Extension, Compartment, ChangeSpec } from "@codemirror/state";
 import { keymap, EditorView } from '@codemirror/view'
 import { settingsFacet } from "./src/SettingsFacet";
 
@@ -51,7 +51,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 		this.registerEditorExtension(textColorParserField);
 		this.registerEditorExtension(textColorViewPlugin);
-		this.registerMarkdownPostProcessor((el,ctx)=>{ textColorPostProcessor(el,ctx,this.settings); });
+		this.registerMarkdownPostProcessor((el, ctx) => { textColorPostProcessor(el, ctx, this.settings); });
 
 		this.settingsCompartment = new Compartment();
 		this.settingsExtension = this.settingsCompartment.of(settingsFacet.of(this.settings));
@@ -80,12 +80,16 @@ export default class FastTextColorPlugin extends Plugin {
 		this.addCommand({
 			id: 'remove-text-color',
 			name: 'Remove text color',
-			editorCallback: (editor: Editor) => {
-				this.removeColor((editor));
+			editorCallback: (editor, view) => {
+				// @ts-expect-error, not typed
+				const editorView = view.editor.cm as EditorView;
+
+				this.removeColor(editor, editorView);
 			}
 		}
 		)
 
+		// add coloring to editor context menu.
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor, view) => {
 				if (editor.getSelection() == '') {
@@ -111,9 +115,9 @@ export default class FastTextColorPlugin extends Plugin {
 								});
 
 							// @ts-ignore
-							(subitem.dom as HTMLElement).addClass(tColor.className());
+							(subitem.dom as HTMLElement).addClass(tColor.className);
 							// @ts-ignore
-							(subitem.iconEl as HTMLElement).addClass(tColor.className());
+							(subitem.iconEl as HTMLElement).addClass(tColor.className);
 						})
 					});
 				})
@@ -148,7 +152,7 @@ export default class FastTextColorPlugin extends Plugin {
 			const colors = getColors(this.settings, j);
 			for (let i = 0; i < colors.length; i++) {
 				let obj: TextColor = colors[i]
-				colors[i] = new TextColor(obj.color, obj.id, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
+				colors[i] = new TextColor(obj.color, obj.id, this.settings.themes[j].name, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
 			}
 		}
 	}
@@ -212,6 +216,10 @@ export default class FastTextColorPlugin extends Plugin {
 
 		// have to apply it again, otherwise menu will not be centered.
 		this.colorMenu.setAttribute("style", `left: calc(50% - ${this.colorMenu.offsetWidth}px / 2); ${attributes}`);
+
+		if (!this.settings.useKeybindings) {
+			return;
+		}
 
 		// for now construct scope on every opening TODO
 		this.constructScope(editor);
@@ -313,8 +321,46 @@ export default class FastTextColorPlugin extends Plugin {
 		editor.replaceSelection(coloredText);
 	}
 
-	removeColor(editor: Editor) {
+	/**
+	 * Removes the color for the text tha the cursor in in.
+	 *
+	 * @param {Editor} editor 
+	 * @param {EditorView} view
+	 */
+	removeColor(editor: Editor, view: EditorView) {
 		// for now only works if span is leading and trailing
+
+		const tree = view.state.field(textColorParserField).tree;
+
+		let node = tree.resolveInner(view.state.selection.main.head);
+
+		while (node.parent != null) {
+			if (node.type.name != "Expression") {
+				node = node.parent;
+				continue;
+			}
+
+			const TcLeft = node.getChild("TcLeft");
+			const Rmarker = node.getChild("TcRight")?.getChild("REnd")?.getChild("RMarker");
+
+			view.dispatch({
+				changes: [{
+					from: TcLeft ? TcLeft.from : 0,
+					to: TcLeft ? TcLeft.to : 0,
+					insert: ''
+				}, {
+					from: Rmarker ? Rmarker.from : 0,
+					to: Rmarker ? Rmarker.to : 0,
+					insert: ''
+				}
+				]
+			})
+
+			return;
+		}
+
+		return;
+
 		let selected = editor.getSelection();
 
 		selected = selected.replace(PREFIX, '');
@@ -322,6 +368,12 @@ export default class FastTextColorPlugin extends Plugin {
 		editor.replaceSelection(selected);
 	}
 
+	/**
+	 * Move the cursor behind the next end marker.
+	 *
+	 * @param {EditorView} editorView
+	 * @returns {boolean} true if jump possible.
+	 */
 	jumpOut(editorView: EditorView): boolean {
 		//@ts-ignore
 		const state: EditorState = editorView.state;
@@ -388,10 +440,10 @@ export default class FastTextColorPlugin extends Plugin {
 			getColors(this.settings, i).forEach((tColor: TextColor) => {
 
 				const theme = this.settings.themes[i]
-				const className =`.${CSS_COLOR_PREFIX}${theme.name}-${tColor.id}`;
-				let cssClass = 
+				const className = `.${CSS_COLOR_PREFIX}${theme.name}-${tColor.id}`;
+				let cssClass =
 					`${className} {\n${tColor.getInnerCss()}}`
-				
+
 				this.style.innerHTML += cssClass + "\n";
 			});
 		}

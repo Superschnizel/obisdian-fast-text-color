@@ -8,20 +8,22 @@ export class ColorWidget extends WidgetType {
 	from: number;
 	to: number;
 	expressionTo: number;
+	themeName : string;
 
 	menu: Menu | null;
 
-	constructor(id: string, from: number, to: number, expressionTo: number) {
+	constructor(id: string, from: number, to: number, expressionTo: number, themeName : string) {
 		super();
 		this.id = id;
 		this.from = from;
 		this.to = to;
 		this.expressionTo = expressionTo; 
+		this.themeName = themeName;
 	}
 
 	toDOM(view: EditorView): HTMLElement {
 		const div = document.createElement("span");
-		div.addClass(`${CSS_COLOR_PREFIX}${this.id}`)
+		div.addClass(`${CSS_COLOR_PREFIX}${this.themeName}-${this.id}`)
 		div.addClass("ftc-color-delimiter")
 		// div.setAttr("style", `background-color: var(${VAR_COLOR_PREFIX}${this.id})`)
 
@@ -59,7 +61,7 @@ export class ColorWidget extends WidgetType {
 							})
 							.setIcon("palette");
 						// @ts-ignore
-						(item.dom as HTMLElement).addClass(tColor.className());
+						(item.dom as HTMLElement).addClass(tColor.className);
 					})
 				});
 				this.menu.addItem(item => {

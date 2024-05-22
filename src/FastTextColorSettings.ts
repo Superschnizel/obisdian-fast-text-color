@@ -13,20 +13,21 @@ export const VAR_COLOR_PREFIX = "--ftc-color-"
 export const SETTINGS_VERSION = "3"
 
 export const DEFAULT_COLORS = [
-	new TextColor("#ff0000", `red`, false, false, 0, 0, 'A'),
-	new TextColor("#ea732a", `orange`, false, false, 0, 0, 'S'),
-	new TextColor("#f0cc2e", `yellow`, false, false, 0, 0, 'D'),
-	new TextColor("#bc18dc", `magenta`, false, false, 0, 0, 'F'),
-	new TextColor("#51070f", `green`, false, false, 0, 0, 'J'),
-	new TextColor("#28c883", `cyan`, false, false, 0, 0, 'K'),
-	new TextColor("#2778ff", `blue`, false, false, 0, 0, 'L'),
-	new TextColor("#123f59", `black`, false, false, 0, 0, 'Ö')];
+	new TextColor("#ff0000", `red`, "default", false, false, 0, 0, 'A'),
+	new TextColor("#ea732a", `orange`, "default", false, false, 0, 0, 'S'),
+	new TextColor("#f0cc2e", `yellow`, "default", false, false, 0, 0, 'D'),
+	new TextColor("#bc18dc", `magenta`, "default", false, false, 0, 0, 'F'),
+	new TextColor("#51070f", `green`, "default", false, false, 0, 0, 'J'),
+	new TextColor("#28c883", `cyan`, "default", false, false, 0, 0, 'K'),
+	new TextColor("#2778ff", `blue`, "default", false, false, 0, 0, 'L'),
+	new TextColor("#123f59", `black`, "default", false, false, 0, 0, 'Ö')];
 
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	themes: [new TextColorTheme("default", DEFAULT_COLORS)],
 	themeIndex: 0,
 	version: SETTINGS_VERSION,
-	interactiveDelimiters: true
+	interactiveDelimiters: true,
+	useKeybindings: true
 }
 
 
@@ -36,6 +37,7 @@ export interface FastTextColorPluginSettings {
 
 	version: string;
 	interactiveDelimiters: boolean;
+	useKeybindings: boolean;
 }
 
 // Settings Functions.
@@ -109,13 +111,14 @@ export function updateSettings(settings: any): FastTextColorPluginSettings {
 		case "1":
 		case "2":
 			const colors = settings.colors.map((color: TextColor) => {
-				return new TextColor(color.color, color.id, color.italic, color.bold, color.cap_mode.index, color.line_mode.index, color.keybind);
+				return new TextColor(color.color, color.id, "default", color.italic, color.bold, color.cap_mode.index, color.line_mode.index, color.keybind);
 			})
 			const outSettings: FastTextColorPluginSettings = {
 				themes: [new TextColorTheme("default", colors)],
 				themeIndex: 0,
 				version: SETTINGS_VERSION,
-				interactiveDelimiters: settings.interactiveDelimiters
+				interactiveDelimiters: settings.interactiveDelimiters,
+				useKeybindings: true
 			}
 			return outSettings;
 
@@ -238,7 +241,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 						}
 
-						getColors(settings).push(new TextColor("#ffffff", this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId));
+						getColors(settings).push(new TextColor("#ffffff", this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId, getCurrentTheme(settings).name));
 						await this.plugin.saveSettings();
 						this.display();
 					})
@@ -261,6 +264,16 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 				tgl.setValue(settings.interactiveDelimiters)
 					.onChange(async value => {
 						settings.interactiveDelimiters = value;
+						await this.plugin.saveSettings();
+					})
+			})
+		new Setting(containerEl)
+			.setName("Use keybindings")
+			.setDesc("If enabled will allow you to use keybindings to activate colors from the colormenu")
+			.addToggle(tgl => {
+				tgl.setValue(settings.useKeybindings)
+					.onChange(async value => {
+						settings.useKeybindings = value;
 						await this.plugin.saveSettings();
 					})
 			})
