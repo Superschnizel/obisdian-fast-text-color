@@ -64,11 +64,11 @@ These issues mainly arrise from the different techniques needed for Live Preview
 
 ## Planned Features:
 
-- [ ] Selectable color themes
+- [x] Selectable color themes
 - [ ] More/better ways to apply color
-	- [ ] submenu in editor context menu
+	- [x] submenu in editor context menu
 	- [ ] add suggester
- - [ ] changing color through interactable delimiter.
+ - [x] changing color through interactable delimiter.
  - [ ] Individual Commands for Theme Colors.
  - [ ] Automatically Color by Keyword
  - [ ] More (Custom) Css options.
