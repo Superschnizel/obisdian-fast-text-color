@@ -37,7 +37,7 @@ export default class FastTextColorPlugin extends Plugin {
 	colorMenu: HTMLDivElement | null | undefined;
 	scope: Scope;
 
-	style: HTMLElement;
+	styleElement: HTMLElement;
 
 	settingsExtension: Extension;
 	settingsCompartment: Compartment;
@@ -103,8 +103,6 @@ export default class FastTextColorPlugin extends Plugin {
 					// @ts-ignore
 					const submenu: Menu = item.setSubmenu();
 					getColors(this.settings).forEach(tColor => {
-						console.log(tColor.id);
-
 						submenu.addItem((subitem) => {
 
 							subitem
@@ -131,7 +129,7 @@ export default class FastTextColorPlugin extends Plugin {
 	}
 
 	onunload() {
-		this.style.remove();
+		this.styleElement.remove();
 		this.closeColorMenu();
 	}
 
@@ -422,19 +420,19 @@ export default class FastTextColorPlugin extends Plugin {
 	 *
 	 */
 	setCssVariables() {
-		if (!this.style) {
-			var root = document.querySelector(':root');
+		if (!this.styleElement) {
+			const root = document.querySelector(':root');
 
 			if (!root) {
 				return;
 			}
 
-			this.style = root.createEl('style');
-			this.style.id = "fast-text-color-stylesheet";
+			this.styleElement = root.createEl('style');
+			this.styleElement.id = "fast-text-color-stylesheet";
 
 		}
 
-		this.style.innerHTML = '';
+		this.styleElement.innerText = "";
 		// dynamically create stylesheet.
 		for (let i = 0; i < this.settings.themes.length; i++) {
 			getColors(this.settings, i).forEach((tColor: TextColor) => {
@@ -444,7 +442,7 @@ export default class FastTextColorPlugin extends Plugin {
 				let cssClass =
 					`${className} {\n${tColor.getInnerCss()}}`
 
-				this.style.innerHTML += cssClass + "\n";
+				this.styleElement.innerText += cssClass + "\n";
 			});
 		}
 

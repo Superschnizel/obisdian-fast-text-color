@@ -1,5 +1,5 @@
 import FastTextColorPlugin from 'main';
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import { TextColor } from "./color/TextColor";
 import { TextColorTheme } from "./color/TextColorTheme";
 import { confirmByModal } from "./utils/ConfirmationModal"
@@ -123,9 +123,8 @@ export function updateSettings(settings: any): FastTextColorPluginSettings {
 			return outSettings;
 
 		default:
-			console.log(`There is not update method for Settings Version ${settings.version}!`);
+			console.log(`There is not update method for Settings Version ${settings.version}!\n${settings}`);
 
-			console.log(settings);
 			return DEFAULT_SETTINGS;
 	}
 }
@@ -237,8 +236,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 				btn.setButtonText("+")
 					.onClick(async evt => {
 						if (getColors(settings).some(tColor => { return tColor.id == this.newId })) {
-							console.log(`color with id ${this.newId} already exists`);
-
+							new Notice(`color with id ${this.newId} already exists!`);
 						}
 
 						getColors(settings).push(new TextColor("#ffffff", this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId, getCurrentTheme(settings).name));

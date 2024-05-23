@@ -43,7 +43,6 @@ export class CreateNewThemeModal extends Modal {
 					.setButtonText("create")
 					.onClick(evt => {
 						if (!this.evalNameErrors()) {
-							console.log(`Invalid name ${this.name}`);
 							return;
 						}
 

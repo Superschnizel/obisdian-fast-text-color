@@ -9,7 +9,6 @@ export const textColorPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcess
 	let themeName = ctx.frontmatter ? ctx.frontmatter["ftcTheme"] : null;
 	themeName = themeName ? themeName : getCurrentTheme(settings).name;
 
-
 	// This is a hacky way of doing this, but every other possibility seemed incredibly convoluted.
 	// For now to handly the codeblocks will require these weird splits.
 
