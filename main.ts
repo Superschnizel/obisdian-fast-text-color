@@ -45,14 +45,12 @@ export default class FastTextColorPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// let scope = new Scope();
-		// scope.register([], "1", (evt) => {console.log("1"); return false;})
-		// this.app.keymap.pushScope(scope);
-
+		// setup Editor Extensions
 		this.registerEditorExtension(textColorParserField);
 		this.registerEditorExtension(textColorViewPlugin);
 		this.registerMarkdownPostProcessor((el, ctx) => { textColorPostProcessor(el, ctx, this.settings); });
 
+		// to make settings available in the ViewPlugin.
 		this.settingsCompartment = new Compartment();
 		this.settingsExtension = this.settingsCompartment.of(settingsFacet.of(this.settings));
 		this.registerEditorExtension(this.settingsExtension);
@@ -67,7 +65,6 @@ export default class FastTextColorPlugin extends Plugin {
 				])
 			)
 		);
-
 
 		this.addCommand({
 			id: 'change-text-color',
@@ -86,8 +83,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 				this.removeColor(editor, editorView);
 			}
-		}
-		)
+		})
 
 		// add coloring to editor context menu.
 		this.registerEvent(
@@ -187,13 +183,14 @@ export default class FastTextColorPlugin extends Plugin {
 		//
 		// TODO: do i really need to rebuild this every time?
 		if (this.colorMenu != null) {
-			console.log('colorMenu already exists');
+			// console.log('colorMenu already exists');
 			return;
 		}
 
 		this.colorMenu = createDiv();
 		if (!this.colorMenu) {
-			console.log("could not create colorMenu.");
+			// console.log("could not create colorMenu.");
+			new Notice("could not create Colormenu!")
 			return;
 		}
 
@@ -380,10 +377,6 @@ export default class FastTextColorPlugin extends Plugin {
 		if (!editor) {
 			return false;
 		}
-
-		// console.log(`resolve: ${tree.resolve(state.selection.main.head)}`)
-		// console.log(`resolveInner: ${tree.resolveInner(state.selection.main.head, 0)}`)
-		// console.log(`resolveStack: ${tree.resolveStack(state.selection.main.head, 0)}`)
 
 		let inner = tree.resolve(state.selection.main.head);
 
