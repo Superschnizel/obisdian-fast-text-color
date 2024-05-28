@@ -151,7 +151,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		// containerEl.createDiv().innerText = "Define your colors here. The numbers on the left indicate wich number key can be pressed to insert the color. Change the order of the colors to change which ones will be activated by the number keys. Be careful when changing the ID of the colors as this does not change the assignment in the notes."
-		containerEl.createEl('h1').innerText = "Colors";
+		// containerEl.createEl('h1').innerText = "Colors";
+		new Setting(containerEl).setName('Colors').setHeading();
 
 		new Setting(containerEl)
 			.setName("Set active theme")
@@ -254,7 +255,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		// 			this.display();
 		// 		})
 		// })
-		containerEl.createEl('h1').innerText = "Other";
+		// containerEl.createEl('h1').innerText = "Other";
+		new Setting(containerEl).setName('Other').setHeading();
 		new Setting(containerEl)
 			.setName("Interactive delimiters")
 			.setDesc("Use interactive delimiter to change colors inside the editor.")

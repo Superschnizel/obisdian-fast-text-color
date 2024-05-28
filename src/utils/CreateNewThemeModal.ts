@@ -27,7 +27,7 @@ export class CreateNewThemeModal extends Modal {
 			.setName(this.name)
 			.addText(txt => {
 				txt.setValue(this.name)
-					.setPlaceholder("theme name")
+					.setPlaceholder("Theme name")
 					.onChange(value => {
 						this.name = value;
 						this.evalNameErrors();

@@ -1,4 +1,4 @@
-import { App, Modal, Plugin, Setting } from "obsidian";
+import { App, Modal, Setting } from "obsidian";
 
 class KeyBindModal extends Modal {
 	result: string;
@@ -17,7 +17,7 @@ class KeyBindModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 
-		contentEl.createEl("h1", { text: "Press any Key" });
+		contentEl.createEl("h1", { text: "Press any key" });
 		// let center = contentEl.createDiv();
 		// center.addClass("ftc-keypress-modal")
 		// center.createDiv().addClass("ftc-keypress-modal-center")
@@ -29,11 +29,11 @@ class KeyBindModal extends Modal {
 		new Setting(contentEl)
 			.addButton(btn => {
 				btn
-				.setButtonText("Cancel")
-				.onClick(evt => {
+					.setButtonText("Cancel")
+					.onClick(evt => {
 						this.close()
-				})
-		})
+					})
+			})
 	}
 
 	onClose() {
@@ -43,26 +43,26 @@ class KeyBindModal extends Modal {
 
 	handleKeypress(evt: KeyboardEvent) {
 		this.result = evt.key.toUpperCase();
-		
+
 		// console.log("Keypressed");
-		
+
 
 		this.modalEl.removeEventListener('keypress', this.handler, true);
 
 		// console.log("removed");
-		
+
 		this.finished = true;
 	}
 }
 
-export async function getKeyBindWithModal(app: App) : Promise<string> {
+export async function getKeyBindWithModal(app: App): Promise<string> {
 	let modal = new KeyBindModal(app);
 	modal.open();
 
 	while (!modal.finished) {
 		await sleep(16);
 	}
-	
+
 	let result = modal.result;
 	modal.close();
 
