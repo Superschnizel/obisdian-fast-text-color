@@ -1,7 +1,7 @@
 {
 	"id": "fast-text-color",
 	"name": "Fast Text Color",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
 	"description": "Quickly apply fully integrated text coloring and formatting with a custom syntax and a keyboard-centric interface.",
 	"author": "Leon Holtmeier",
