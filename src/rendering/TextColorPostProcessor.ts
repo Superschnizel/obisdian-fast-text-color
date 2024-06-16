@@ -10,7 +10,9 @@ export const textColorPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcess
 	themeName = themeName ? themeName : getCurrentTheme(settings).name;
 
 	// This is a hacky way of doing this, but every other possibility seemed incredibly convoluted.
-	// For now to handly the codeblocks will require these weird splits.
+	// For now to handle the codeblocks will require these weird splits.
+	//
+	// recurseReplace(el, themeName);
 
 	const split = el.innerHTML.split(/\<code/g);
 
@@ -40,7 +42,12 @@ export const textColorPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcess
 
 	}
 
-	el.innerHTML = inner;
+	const parser = new DOMParser();
+	const newNode = parser.parseFromString(inner, "text/html").body;
+
+	el.setChildrenInPlace([ newNode ])
+
+	// el.innerHTML = inner;
 }
 
 /**
@@ -58,12 +65,53 @@ function recurseReplace(node: Node, themeName: string) {
 
 	if (node.nodeType == Node.TEXT_NODE) {
 		// console.log(node.textContent);
-		let text = node.nodeValue || '';
-		text = text.replace(PREFIX, (match) => {
-			return `<span class="${CSS_COLOR_PREFIX}${themeName}-${match.slice(3, match.length - 1)}">`;
-		}).replace(SUFFIX, "</span>")
+		let text = node.nodeValue;
 
-		node.nodeValue = text;
+		if (text == undefined) {
+			return;
+		}
+
+		const colors = text.match(PREFIX)?.map(value => value.slice(3, value.length - 1));
+		let colorCount = 0;
+
+		if (colors == undefined || colors.length == 0) {
+			return;
+		}
+
+		let splitOnLeft = text.split(PREFIX);
+
+		// create document fragment to hold values
+		const fragment = document.createDocumentFragment().createDiv();
+
+		for (let i = 0; i < splitOnLeft.length; i++) {
+			const textElement = splitOnLeft[i];
+
+			if (textElement == '') {
+				continue;
+			}
+
+			let splitOnRight = textElement.split(SUFFIX);
+
+			for (let j = 0; j < splitOnRight.length; j++) {
+				const element = splitOnRight[j];
+
+				if (j % 2 == 0) {
+					const span = document.createSpan();
+					span.addClass(`${CSS_COLOR_PREFIX}${themeName}-${colors[colorCount]}`)
+					fragment.appendChild(span)
+					continue;
+				}
+
+				fragment.appendChild(document.createTextNode(element))
+			}
+
+		}
+
+		// text = text.replace(PREFIX, (match) => {
+		// 	return `<span class="${CSS_COLOR_PREFIX}${themeName}-${match.slice(3, match.length - 1)}">`;
+		// }).replace(SUFFIX, "</span>")
+
+		// node.nodeValue = text;
 		// console.log(node.nodeValue);
 	}
 
