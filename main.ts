@@ -133,7 +133,7 @@ export default class FastTextColorPlugin extends Plugin {
 		// this.settings = DEFAULT_SETTINGS; return; // DEBUG
 		const rawSettings = await this.loadData();
 
-		if (+rawSettings.version < +SETTINGS_VERSION) {
+		if (rawSettings && +rawSettings.version < +SETTINGS_VERSION) {
 			console.log("outdated Settings! Trying to update.")
 			this.settings = updateSettings(rawSettings)
 			await this.saveData(this.settings);
