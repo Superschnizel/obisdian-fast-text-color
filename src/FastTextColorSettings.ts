@@ -6,7 +6,10 @@ import { confirmByModal } from "./utils/ConfirmationModal"
 import { CreateNewThemeModal } from './utils/CreateNewThemeModal';
 import { getKeyBindWithModal } from "./utils/KeyBindModal"
 
-// CONSTANTS
+// --------------------------------------------------------------------------
+//                            CONSTANTS
+// --------------------------------------------------------------------------
+
 export const CSS_COLOR_PREFIX = "ftc-color-"
 export const VAR_COLOR_PREFIX = "--ftc-color-"
 
@@ -40,7 +43,9 @@ export interface FastTextColorPluginSettings {
 	useKeybindings: boolean;
 }
 
-// Settings Functions.
+// --------------------------------------------------------------------------
+//                            Setting Functions.
+// --------------------------------------------------------------------------
 
 /**
  * Get the colors of the current selected theme or the theme given by the index.
@@ -49,7 +54,7 @@ export interface FastTextColorPluginSettings {
  * @param {number} [index] - the index.
  * @returns {TextColor[]} 
  */
-export function getColors(settings: FastTextColorPluginSettings, index:number=-1): TextColor[] {
+export function getColors(settings: FastTextColorPluginSettings, index: number = -1): TextColor[] {
 	if (index == -1) {
 		index = settings.themeIndex;
 	}
@@ -62,8 +67,8 @@ export function getColors(settings: FastTextColorPluginSettings, index:number=-1
  *
  * @param {FastTextColorPluginSettings} settings - the plugin settings.
  */
-export function getCurrentTheme(settings:FastTextColorPluginSettings) {
-	return settings.themes[settings.themeIndex];	
+export function getCurrentTheme(settings: FastTextColorPluginSettings) {
+	return settings.themes[settings.themeIndex];
 }
 
 // THEME functions
@@ -79,7 +84,7 @@ export function addTheme(settings: FastTextColorPluginSettings, name: string, co
 }
 
 /**
- * Changes the current index in the settings to the next.
+ * Changes the current theme index in the settings to the next.
  *
  * @param {FastTextColorPluginSettings} settings - the plugin settings.
  */
@@ -87,10 +92,20 @@ export function selectNextTheme(settings: FastTextColorPluginSettings) {
 	settings.themeIndex = (settings.themeIndex + 1) % settings.themes.length;
 }
 
+/**
+ * Changes the current theme index in the settings to the previous
+ *
+ * @param {FastTextColorPluginSettings} settings - the plugin settings.
+ */
 export function selectPreviousTheme(settings: FastTextColorPluginSettings) {
 	settings.themeIndex = (settings.themes.length + settings.themeIndex - 1) % settings.themes.length;
 }
 
+/**
+ * Remove the currently active theme from the list of themes.
+ *
+ * @param {FastTextColorPluginSettings} settings - the plugin settings.
+ */
 export function deleteCurrentTheme(settings: FastTextColorPluginSettings) {
 	if (settings.themes.length <= 1) {
 		return;
@@ -279,6 +294,13 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			})
 	}
 
+	/**
+	 * Create a color row in the theme view 
+	 *
+	 * @param {HTMLElement} container - the root container of the element.
+	 * @param {TextColor} tColor - the color to be used for display
+	 * @param {number} count - the index of the color
+	 */
 	createColorSetting(container: HTMLElement, tColor: TextColor, count: number): void {
 
 		let frag = new DocumentFragment()
@@ -302,42 +324,64 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setButtonText(`${tColor.keybind}`.toUpperCase())
 					.setTooltip("set keybinding")
 					.setClass("key-indicator")
+
 					.onClick(async evt => {
 						tColor.keybind = await getKeyBindWithModal(this.app);
+
 						btn.setButtonText(`${tColor.keybind}`);
 						await this.plugin.saveSettings();
+
 						this.plugin.setCssVariables();
 					})
 				// btn.buttonEl.addClass("ftc-format-left")
 			})
+
 			.addButton(btn => {
 				btn
 					.setButtonText("B")
 					.setTooltip("Bold")
 					.setClass("ftc-format-item")
+
 					.onClick(async evt => {
 						tColor.bold = !tColor.bold;
+
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.bold);
+						btn.buttonEl.setCssStyles({ fontWeight: tColor.bold ? "bold" : "normal" });
+
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
+
+						exampletext.setAttr("style", tColor.getCssInlineStyle());
 					})
+
 				btn.buttonEl.addClass("ftc-format-left")
 				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.bold);
+				btn.buttonEl.setCssStyles({ fontWeight: tColor.bold ? "bold" : "normal" });
 			})
+
 			.addButton(btn => {
 				btn
 					.setButtonText("I")
 					.setTooltip("Italic")
 					.setClass("ftc-format-item")
+
 					.onClick(async evt => {
 						tColor.italic = !tColor.italic;
+
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.italic);
+						btn.buttonEl.setCssStyles({ fontStyle: tColor.italic ? "italic" : "normal" });
+
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
+
+						exampletext.setAttr("style", tColor.getCssInlineStyle());
 					})
+
 				btn.buttonEl.addClass("ftc-format-middle")
 				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.italic);
+				btn.buttonEl.setCssStyles({ fontStyle: tColor.italic ? "italic" : "normal" });
 			})
+
 			.addButton(btn => {
 				btn
 					.setButtonText("U")
@@ -346,37 +390,61 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.onClick(async evt => {
 						// cycle through enum
 						tColor.line_mode.cycle();
+
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.line_mode.state != "none");
+						btn.buttonEl.setCssStyles({ textDecoration: tColor.line_mode.state });
 						btn.setTooltip(tColor.line_mode.state);
+
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
+
+						exampletext.setAttr("style", tColor.getCssInlineStyle());
 					})
-				btn.buttonEl.addClass("ftc-format-middle")
+
+				btn.buttonEl.addClass("ftc-format-middle");
 				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.line_mode.state != "none");
+				btn.buttonEl.setCssStyles({ textDecoration: tColor.line_mode.state });
 			})
 			.addButton(btn => {
 				btn
 					.setButtonText("Tt")
 					.setTooltip(tColor.cap_mode.state)
 					.setClass("ftc-format-item")
+
 					.onClick(async evt => {
 						// cycle through enum
 						tColor.cap_mode.cycle();
+
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.cap_mode.state != "normal");
+						btn.buttonEl.setCssStyles(
+							tColor.cap_mode.state == "all_caps" ? { textTransform: "uppercase" }
+								: tColor.cap_mode.state == "small_caps" ? { fontVariant: "small_caps" } : {}
+						);
 						btn.setTooltip(tColor.cap_mode.state);
+
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
+
+						exampletext.setAttr("style", tColor.getCssInlineStyle());
 					})
-				btn.buttonEl.addClass("ftc-format-right")
+
+				btn.buttonEl.addClass("ftc-format-right");
 				btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.cap_mode.state != "normal");
+				btn.buttonEl.setCssStyles(
+					tColor.cap_mode.state == "all_caps" ? { textTransform: "uppercase" }
+						: tColor.cap_mode.state == "small_caps" ? { fontVariant: "small_caps" } : {}
+				);
 			})
 			.addColorPicker((cb) => {
 				cb
 					.setValue(tColor.color)
 					.onChange(async (value) => {
 						tColor.color = value;
+
 						this.plugin.setCssVariables();
 						await this.plugin.saveSettings();
+
+						exampletext.setAttr("style", tColor.getCssInlineStyle());
 					})
 			})
 			.addButton(btn => {
@@ -384,6 +452,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setIcon("chevron-up")
 					.setTooltip("move item up")
 					.setClass("ftc-move-btn-left")
+
 					.onClick(async evt => {
 						moveColor(count - 1, -1, this.plugin.settings);
 						await this.plugin.saveSettings();
@@ -395,6 +464,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setIcon("chevron-down")
 					.setTooltip("move item down")
 					.setClass("ftc-move-btn-right")
+
 					.onClick(async evt => {
 						moveColor(count - 1, 1, this.plugin.settings);
 						await this.plugin.saveSettings();
@@ -406,6 +476,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setIcon("trash")
 					.setTooltip("delete color")
 					.setClass("ftc-move-btn-right")
+
 					.onClick(async evt => {
 						if (await confirmByModal(this.app,
 							`Colored section whith the id "${tColor.id}" will no longer be colored until you add another color with that id.`,

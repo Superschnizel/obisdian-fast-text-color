@@ -76,6 +76,26 @@
 	margin-left: calc(0px - var(--size-4-2));
 }
 
+.ftc-format-bold {
+	font-weight: bold;
+}
+
+.ftc-format-italic {
+	font-style: italic;
+}
+
+.ftc-format-underline {
+	text-decoration: underline;
+}
+
+.ftc-format-overline {
+	text-decoration: overline;
+}
+
+.ftc-format-line-through {
+	text-decoration: line-through;
+}
+
 .key-indicator {
 	display: flex;
 	width: var(--size-4-8);

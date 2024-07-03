@@ -30,7 +30,6 @@ export class TextColor {
 	}
 
 	getCssClass(): string {
-		// what is going on?
 		return `.${CSS_COLOR_PREFIX}${this.id} { 
 				color : ${this.color}\n;
 				${this.italic ? "font-style: italic;\n" : ''}

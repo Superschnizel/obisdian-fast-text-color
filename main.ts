@@ -127,12 +127,15 @@ export default class FastTextColorPlugin extends Plugin {
 	onunload() {
 		this.styleElement.remove();
 		this.closeColorMenu();
+
+		// remove editorextensions
 	}
 
 	async loadSettings() {
 		// this.settings = DEFAULT_SETTINGS; return; // DEBUG
 		const rawSettings = await this.loadData();
 
+		// if settings already exists but are an older version
 		if (rawSettings && +rawSettings.version < +SETTINGS_VERSION) {
 			console.log("outdated Settings! Trying to update.")
 			this.settings = updateSettings(rawSettings)
@@ -142,6 +145,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 
+		// reinitialize theme 
 		for (let j = 0; j < this.settings.themes.length; j++) {
 			const colors = getColors(this.settings, j);
 			for (let i = 0; i < colors.length; i++) {
