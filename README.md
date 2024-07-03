@@ -44,7 +44,21 @@ Colors are boundled into themes. You can create, manage and set the currently ac
 
 if you want to have a certain theme active in a note although it is not set as the currently active theme you can do so by setting the property `ftcTheme` in the frontmatter to the name of the theme you want to use.
 
-### Coloring Menu
+### Applying Color
+
+#### Editor Context Menu
+
+Right clicking on highlighted text lets you change the textcolor via the context menu. All Colors available in the current theme will be shown.
+
+<img src="https://github.com/Superschnizel/obisdian-fast-text-color/assets/47162464/4ad2c7c1-6f9b-4221-b3eb-ad26853cc0c1" width="30%">
+
+#### Interactive Delimiter
+
+If the interactive delimiter option is enabled in the settings (default). you can change or remove the color of text via the interactive delimiter shown in place of the color name.
+
+<img src="https://github.com/Superschnizel/obisdian-fast-text-color/assets/47162464/06587d0b-9e3d-4b24-9427-9ab5f655060b" width="30%">
+
+#### Coloring Menu
 
 Calling the `change text color` command opens the coloring menu, which allows you to choose the color of the selected text or inserts a colored section if no text is selected.
 
