@@ -3,17 +3,21 @@ import { Tree } from "@lezer/common";
 import { CSS_COLOR_PREFIX, FastTextColorPluginSettings, getCurrentTheme } from 'src/FastTextColorSettings';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 
-export const textColorPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcessorContext, settings: FastTextColorPluginSettings) => {
+export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostProcessorContext, settings: FastTextColorPluginSettings) => {
 
+	// if (!el.innerHTML.match(PREFIX)) {
+	// 	return;
+	// }
 
-	let themeName = ctx.frontmatter ? ctx.frontmatter["ftcTheme"] : null;
+	// get theme name from frontmatter or from settings
+	let themeName = context.frontmatter ? context.frontmatter["ftcTheme"] : null;
 	themeName = themeName ? themeName : getCurrentTheme(settings).name;
 
 	// This is a hacky way of doing this, but every other possibility seemed incredibly convoluted.
 	// For now to handle the codeblocks will require these weird splits.
 	//
-	// recurseReplace(el, themeName);
-
+	// I tried doing this another way (see version 1.0.5) but that caused some very weird issues with themes and css.
+	
 	const split = el.innerHTML.split(/\<code/g);
 
 	let inner = '';
@@ -39,15 +43,11 @@ export const textColorPostProcessor = (el: HTMLElement, ctx: MarkdownPostProcess
 			}).replace(SUFFIX, "</span>")
 
 		}
-
 	}
 
-	const parser = new DOMParser();
-	const newNode = parser.parseFromString(inner, "text/html").body;
+	el.innerHTML = inner;
 
-	el.setChildrenInPlace([ newNode ])
-
-	// el.innerHTML = inner;
+	return;
 }
 
 /**
@@ -71,6 +71,7 @@ function recurseReplace(node: Node, themeName: string) {
 			return;
 		}
 
+		// get Color
 		const colors = text.match(PREFIX)?.map(value => value.slice(3, value.length - 1));
 		let colorCount = 0;
 
@@ -78,24 +79,25 @@ function recurseReplace(node: Node, themeName: string) {
 			return;
 		}
 
-		let splitOnLeft = text.split(PREFIX);
+		let splitOnPrefix = text.split(PREFIX);
 
 		// create document fragment to hold values
-		const fragment = document.createDocumentFragment().createDiv();
+		const fragment = document.createDocumentFragment();
 
-		for (let i = 0; i < splitOnLeft.length; i++) {
-			const textElement = splitOnLeft[i];
+		for (let i = 0; i < splitOnPrefix.length; i++) {
+			const textElement = splitOnPrefix[i];
 
 			if (textElement == '') {
 				continue;
 			}
 
-			let splitOnRight = textElement.split(SUFFIX);
+			let splitOnSuffix = textElement.split(SUFFIX);
 
-			for (let j = 0; j < splitOnRight.length; j++) {
-				const element = splitOnRight[j];
+			for (let j = 0; j < splitOnSuffix.length; j++) {
+				const element = splitOnSuffix[j];
 
 				if (j % 2 == 0) {
+					// is colored text.
 					const span = document.createSpan();
 					span.addClass(`${CSS_COLOR_PREFIX}${themeName}-${colors[colorCount]}`)
 					fragment.appendChild(span)
@@ -104,12 +106,7 @@ function recurseReplace(node: Node, themeName: string) {
 
 				fragment.appendChild(document.createTextNode(element))
 			}
-
 		}
-
-		// text = text.replace(PREFIX, (match) => {
-		// 	return `<span class="${CSS_COLOR_PREFIX}${themeName}-${match.slice(3, match.length - 1)}">`;
-		// }).replace(SUFFIX, "</span>")
 
 		// node.nodeValue = text;
 		// console.log(node.nodeValue);
