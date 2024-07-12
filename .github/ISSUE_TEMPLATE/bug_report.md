@@ -7,6 +7,9 @@ assignees: ''
 
 ---
 
+**Version**
+The Version of the plugin that this bug occurs in.
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
