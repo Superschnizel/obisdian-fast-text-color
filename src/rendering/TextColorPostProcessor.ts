@@ -1,13 +1,15 @@
 import { MarkdownPostProcessorContext } from 'obsidian'
 import { Tree } from "@lezer/common";
 import { CSS_COLOR_PREFIX, FastTextColorPluginSettings, getCurrentTheme } from 'src/FastTextColorSettings';
-import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
+import { PREFIX, SUFFIX, RegExMatch } from 'src/utils/regularExpressions';
+import { match } from 'assert';
+import { Console } from 'console';
 
 export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostProcessorContext, settings: FastTextColorPluginSettings) => {
 
-	// if (!el.innerHTML.match(PREFIX)) {
-	// 	return;
-	// }
+	if (!el.innerHTML.match(PREFIX)) {
+		return;
+	}
 
 	// get theme name from frontmatter or from settings
 	let themeName = context.frontmatter ? context.frontmatter["ftcTheme"] : null;
@@ -17,7 +19,10 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
 	// For now to handle the codeblocks will require these weird splits.
 	//
 	// I tried doing this another way (see version 1.0.5) but that caused some very weird issues with themes and css.
-	
+
+	rebuildNode(el, themeName);
+	return;
+
 	const split = el.innerHTML.split(/\<code/g);
 
 	let inner = '';
@@ -50,6 +55,168 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
 	return;
 }
 
+
+/**
+ * Rebuilds the Node Tree and adds color nodes where necessary.
+ * This is done to make sure interactive functionality is not removed from nodes.
+ *
+ * @param {Node} node - [TODO:description]
+ * @returns {Node} [TODO:description]
+ */
+function rebuildNode(node: Node, themeName: string): Node {
+	if (node.nodeName == 'CODE') {
+		return node;
+	}
+
+	// if (!node.hasChildNodes()) {
+	// 	console.log("no childs?");
+	// 	
+	// 	return node;
+	// }
+
+	// create a stack to manage state
+	const nodeStack: Node[] = [];
+
+	// get the children 
+	// const newNode = node.cloneNode(false);
+	const newNode = document.createDocumentFragment().createDiv();
+
+	// remove all copied children
+	// while (node.firstChild) {
+	// 	node.removeChild(node.firstChild)
+	// }
+	
+	// let children : Node[] = [];
+	// node.childNodes.forEach(n => {
+	// 	children.push(n.cloneNode(true));
+	// })
+
+	nodeStack.push(newNode);
+
+	let children = node.childNodes;
+	children.forEach((childNode : Node) => {
+		console.log(`node: ${childNode.nodeType}`);
+
+		console.log(node.textContent);
+		// 
+		//
+		// if (childNode.nodeType != Node.TEXT_NODE) {
+		// 	// if childnode is not textnode, handle recursively.
+		// 	console.log("is not textNode");
+		// 	
+		// 	nodeStack.last()?.appendChild(rebuildNode(childNode, themeName))
+		// 	return;
+		// }
+		//
+		// console.log(childNode.textContent);
+		//
+		// const text = childNode.textContent;
+		//
+		// if (text == null) {
+		// 	return;
+		// }
+		//
+		// // node has one or more opening delimiters in it.
+		//
+		// // get the list of prefixes and suffixes in the text node.
+		// let prefixes = GetAllMatches(text, PREFIX).reverse();
+		// let suffixes = GetAllMatches(text, SUFFIX).reverse();
+		// let lastpos = 0;
+		//
+		// while ((prefixes.length > 0) || (suffixes.length > 0)) {
+		// 	let nextPrefixPosition = prefixes.last()?.index ?? Number.POSITIVE_INFINITY;
+		// 	let nextSuffixPosition = suffixes.last()?.index ?? Number.POSITIVE_INFINITY;
+		//
+		// 	if (nextPrefixPosition == nextSuffixPosition) {
+		// 		// should never be the case but idk.
+		// 		console.log("nextPre and nextSuf are the same!!: " + `${nextPrefixPosition}`);
+		//
+		// 		break;
+		// 	}
+		//
+		// 	if (nextPrefixPosition < nextSuffixPosition) {
+		// 		// next is prefix
+		// 		let prevText = text.slice(lastpos, nextPrefixPosition);
+		// 		let prefix = prefixes.last()!.value;
+		// 		let color = prefix.slice(3, prefix.length - 1);
+		//
+		// 		console.log(`handling prefix:\nprevText: ${prevText}`)
+		//
+		// 		let colorSpan = nodeStack.last()!.createSpan();
+		// 		colorSpan.addClass(`${CSS_COLOR_PREFIX}${themeName}-${color}`);
+		//
+		// 		// append Text node and then append new color node
+		// 		nodeStack.last()?.appendChild(document.createTextNode(prevText));
+		// 		nodeStack.last()?.appendChild(colorSpan);
+		// 		nodeStack.push(colorSpan);
+		//
+		// 		lastpos = prefixes.last()!.end;
+		//
+		// 		// remove prefix from match.
+		// 		prefixes.pop();
+		//
+		// 		continue;
+		// 	}
+		//
+		// 	// next is suffix;
+		// 	let prevText = text.slice(lastpos, nextSuffixPosition);
+		// 	nodeStack.last()?.appendChild(document.createTextNode(prevText));
+		//
+		// 	console.log(`handling suffix:\nprevText: ${prevText}`)
+		//
+		// 	lastpos = suffixes.last()!.end;
+		//
+		// 	nodeStack.pop();
+		// 	suffixes.pop();
+		// }
+		//
+		// if (lastpos <= text.length) {
+		// 	let prevText = text.slice(lastpos);
+		// 	nodeStack.last()?.appendChild(document.createTextNode(prevText));
+		// }
+		//
+		// console.log("finished node rebuild");
+
+	});
+
+	// // remove all childs from original node:
+	// while (node.firstChild) {
+	// 	node.removeChild(node.firstChild);
+	// }
+	//
+	// // append new node structure.
+	// newNode.childNodes.forEach(child => {
+	// 	node.appendChild(child);
+	// });
+	//
+	// newNode.empty();
+
+	return node;
+
+}
+
+function GetAllMatches(text: string, regex: RegExp): RegExMatch[] {
+	const regexCopy = new RegExp(regex.source, '');
+	const matches: RegExMatch[] = [];
+
+	let m = regexCopy.exec(text);
+
+	let startIndex = 0;
+	while (m != null) {
+		matches.push({
+			index: m.index,
+			value: m[0],
+			end: m.index + m[0].length
+		}); 
+
+		startIndex = m.index + m[0].length;
+		m = regexCopy.exec(text.slice(startIndex))
+	}
+
+	return matches;
+}
+
+
 /**
  * DEPRECATED - leaving here because it might be needed at some point
  *
@@ -73,6 +240,7 @@ function recurseReplace(node: Node, themeName: string) {
 
 		// get Color
 		const colors = text.match(PREFIX)?.map(value => value.slice(3, value.length - 1));
+
 		let colorCount = 0;
 
 		if (colors == undefined || colors.length == 0) {
@@ -99,7 +267,7 @@ function recurseReplace(node: Node, themeName: string) {
 				if (j % 2 == 0) {
 					// is colored text.
 					const span = document.createSpan();
-					span.addClass(`${CSS_COLOR_PREFIX}${themeName}-${colors[colorCount]}`)
+
 					fragment.appendChild(span)
 					continue;
 				}
