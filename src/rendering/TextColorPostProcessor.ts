@@ -19,6 +19,7 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
 	// For now to handle the codeblocks will require these weird splits.
 	//
 	// I tried doing this another way (see version 1.0.5) but that caused some very weird issues with themes and css.
+	console.log(prettyPrintDOMStructure(el));
 
 	rebuildNode(el, themeName);
 	return;
@@ -63,10 +64,19 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
  * @param {Node} node - [TODO:description]
  * @returns {Node} [TODO:description]
  */
-function rebuildNode(node: Node, themeName: string): Node {
+function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 	if (node.nodeName == 'CODE') {
 		return node;
 	}
+
+	if (level > 1000) {
+		console.log("reached depth 1000 in recursion");
+
+	}
+
+	// if (!node.textContent?.match(PREFIX) && !node.textContent?.match(SUFFIX)) {
+	// 	return node;
+	// }
 
 	// if (!node.hasChildNodes()) {
 	// 	console.log("no childs?");
@@ -79,104 +89,154 @@ function rebuildNode(node: Node, themeName: string): Node {
 
 	// get the children 
 	// const newNode = node.cloneNode(false);
-	const newNode = document.createDocumentFragment().createDiv();
+	// const newNode = document.createDocumentFragment().createDiv();
 
 	// remove all copied children
 	// while (node.firstChild) {
 	// 	node.removeChild(node.firstChild)
 	// }
-	
+
 	// let children : Node[] = [];
 	// node.childNodes.forEach(n => {
 	// 	children.push(n.cloneNode(true));
 	// })
 
-	nodeStack.push(newNode);
+	nodeStack.push(node);
 
 	let children = node.childNodes;
-	children.forEach((childNode : Node) => {
-		console.log(`node: ${childNode.nodeType}`);
+	children.forEach((childNode: Node) => {
 
-		console.log(node.textContent);
-		// 
-		//
-		// if (childNode.nodeType != Node.TEXT_NODE) {
-		// 	// if childnode is not textnode, handle recursively.
-		// 	console.log("is not textNode");
-		// 	
-		// 	nodeStack.last()?.appendChild(rebuildNode(childNode, themeName))
-		// 	return;
-		// }
-		//
-		// console.log(childNode.textContent);
-		//
-		// const text = childNode.textContent;
-		//
-		// if (text == null) {
-		// 	return;
-		// }
-		//
-		// // node has one or more opening delimiters in it.
-		//
-		// // get the list of prefixes and suffixes in the text node.
-		// let prefixes = GetAllMatches(text, PREFIX).reverse();
-		// let suffixes = GetAllMatches(text, SUFFIX).reverse();
-		// let lastpos = 0;
-		//
-		// while ((prefixes.length > 0) || (suffixes.length > 0)) {
-		// 	let nextPrefixPosition = prefixes.last()?.index ?? Number.POSITIVE_INFINITY;
-		// 	let nextSuffixPosition = suffixes.last()?.index ?? Number.POSITIVE_INFINITY;
-		//
-		// 	if (nextPrefixPosition == nextSuffixPosition) {
-		// 		// should never be the case but idk.
-		// 		console.log("nextPre and nextSuf are the same!!: " + `${nextPrefixPosition}`);
-		//
-		// 		break;
-		// 	}
-		//
-		// 	if (nextPrefixPosition < nextSuffixPosition) {
-		// 		// next is prefix
-		// 		let prevText = text.slice(lastpos, nextPrefixPosition);
-		// 		let prefix = prefixes.last()!.value;
-		// 		let color = prefix.slice(3, prefix.length - 1);
-		//
-		// 		console.log(`handling prefix:\nprevText: ${prevText}`)
-		//
-		// 		let colorSpan = nodeStack.last()!.createSpan();
-		// 		colorSpan.addClass(`${CSS_COLOR_PREFIX}${themeName}-${color}`);
-		//
-		// 		// append Text node and then append new color node
-		// 		nodeStack.last()?.appendChild(document.createTextNode(prevText));
-		// 		nodeStack.last()?.appendChild(colorSpan);
-		// 		nodeStack.push(colorSpan);
-		//
-		// 		lastpos = prefixes.last()!.end;
-		//
-		// 		// remove prefix from match.
-		// 		prefixes.pop();
-		//
-		// 		continue;
-		// 	}
-		//
-		// 	// next is suffix;
-		// 	let prevText = text.slice(lastpos, nextSuffixPosition);
-		// 	nodeStack.last()?.appendChild(document.createTextNode(prevText));
-		//
-		// 	console.log(`handling suffix:\nprevText: ${prevText}`)
-		//
-		// 	lastpos = suffixes.last()!.end;
-		//
-		// 	nodeStack.pop();
-		// 	suffixes.pop();
-		// }
-		//
-		// if (lastpos <= text.length) {
-		// 	let prevText = text.slice(lastpos);
-		// 	nodeStack.last()?.appendChild(document.createTextNode(prevText));
-		// }
-		//
-		// console.log("finished node rebuild");
+		if (childNode == nodeStack.last()) {
+			// can happen because of appending
+			return;
+		}
 
+		const text = childNode.nodeValue;
+		console.log(`node: ${childNode.nodeName} ==> ${text}`);
+		// console.log(childNode.compareDocumentPosition(nodeStack.last()!));
+
+		// the last item on the stack should always be the current parent.
+		if (!(childNode.compareDocumentPosition(nodeStack.last()!) & Node.DOCUMENT_POSITION_CONTAINS)) {
+			console.log("setting new parent");
+
+			childNode.parentNode?.removeChild(childNode);
+			nodeStack.last()?.appendChild(childNode);
+		}
+
+		// console.log(`node: ${childNode.nodeName}, level: ${level}`);
+		if (childNode.nodeType != Node.TEXT_NODE) {
+			// if childnode is not textnode, handle recursively.
+			childNode = rebuildNode(childNode, themeName);
+			// console.log(`rbuilding and appending ${childNode.nodeName} to ${nodeStack.last()?.nodeName}`);
+
+			// nodeStack.last()?.appendChild(rebuildNode(childNode, themeName, level + 1));
+			return;
+		}
+
+		if (text == null || text == "") {
+			return;
+		}
+
+		// node has one or more opening delimiters in it.
+
+		// get the list of prefixes and suffixes in the text node.
+		let prefixes = GetAllMatches(text, PREFIX).reverse();
+		let suffixes = GetAllMatches(text, SUFFIX).reverse();
+		let lastpos = 0;
+
+		// console.log(`prefixes: ${prefixes.reduce((prev, next) => prev + `, ${next.index}`, "")}`);
+		// console.log(`suffixes: ${suffixes.reduce((prev, next) => prev + `, ${next.index}`, "")}`);
+
+		if ((prefixes.length <= 0) && (suffixes.length <= 0)) {
+			// exit out if no matches found.
+			return;
+		}
+
+		let count = 0;
+		while ((prefixes.length > 0) || (suffixes.length > 0)) {
+			let nextPrefixPosition = prefixes.last()?.index ?? Number.POSITIVE_INFINITY;
+			let nextSuffixPosition = suffixes.last()?.index ?? Number.POSITIVE_INFINITY;
+
+			// if (nodeStack.last()! != childNode.parentNode) {
+			// 	console.log("setting new parent");
+			//
+			// 	childNode.parentNode?.removeChild(childNode);
+			// 	nodeStack.last()?.appendChild(childNode);
+			// }
+
+			count++;
+			if (count > 1000) {
+				console.log(`count was too large, next: pre=${nextPrefixPosition}, suf=${nextSuffixPosition}`);
+			}
+
+			if (nextPrefixPosition == nextSuffixPosition) {
+				// should never be the case but idk.
+				console.log("nextPre and nextSuf are the same!!: " + `${nextPrefixPosition}`);
+
+				break;
+			}
+
+			let referenceNode = childNode;
+
+			if (nextPrefixPosition < nextSuffixPosition) {
+				// next is prefix
+				let prevText = text.slice(lastpos, nextPrefixPosition);
+				let prefix = prefixes.last()!.value;
+				let color = prefix.slice(3, prefix.length - 1);
+
+				console.log(`handling prefix:\nprevText: ${prevText}`)
+
+				nodeStack.last()?.insertAfter(document.createTextNode(prevText), referenceNode);
+
+				// var newPrevNode = document.createTextNode(prevText);
+				// var reference = childNode.parentNode == nodeStack.last()! ? childNode : nodeStack.last()!.lastChild;
+				// nodeStack.last()?.insertAfter(newPrevNode, reference);
+
+				// nodeStack.last()?.replaceChild(document.createTextNode(prevText), childNode);
+
+				// if (nodeStack.last()! != childNode.parentNode) {
+				// 	childNode.parentNode?.removeChild(childNode);
+				// 	nodeStack.last()?.appendChild(childNode);
+				// }
+
+				let colorSpan = document.createElement("span");
+				colorSpan.addClass(`${CSS_COLOR_PREFIX}${themeName}-${color}`);
+
+				// append Text node and then append new color node
+				nodeStack.last()?.insertAfter(colorSpan, childNode);
+				nodeStack.push(colorSpan);
+
+				referenceNode = colorSpan;
+				lastpos = prefixes.last()!.end;
+
+				// remove prefix from match.
+				prefixes.pop();
+
+				continue;
+			}
+
+			// next is suffix;
+			let prevText = text.slice(lastpos, nextSuffixPosition);
+			childNode.parentNode?.removeChild(childNode);
+			nodeStack.last()?.appendChild(document.createTextNode(prevText));
+
+			console.log(`handling suffix:\nprevText: ${prevText}`)
+
+			lastpos = suffixes.last()!.end;
+
+			nodeStack.pop();
+			suffixes.pop();
+
+			continue;
+		}
+
+		// remove original child node
+		childNode.parentNode?.removeChild(childNode);
+
+		if (lastpos <= text.length) {
+			let prevText = text.slice(lastpos);
+			nodeStack.last()?.appendChild(document.createTextNode(prevText));
+		}
 	});
 
 	// // remove all childs from original node:
@@ -195,22 +255,63 @@ function rebuildNode(node: Node, themeName: string): Node {
 
 }
 
+function prettyPrintDOMStructure(node: Node, depth: number = 0): string {
+	const indent = '  '.repeat(depth);
+	let output = '';
+
+	switch (node.nodeType) {
+		case Node.ELEMENT_NODE:
+			const element = node as Element;
+			output += `${indent}${element.tagName.toLowerCase()}`;
+
+			if (element.id) {
+				output += `#${element.id}`;
+			}
+
+			if (element.className && typeof element.className === 'string') {
+				output += `.${element.className.split(' ').join('.')}`;
+			}
+
+			output += '\n';
+
+			Array.from(element.attributes).forEach(attr => {
+				if (attr.name !== 'id' && attr.name !== 'class') {
+					output += `${indent}  ${attr.name}="${attr.value}"\n`;
+				}
+			});
+
+			element.childNodes.forEach(childNode => {
+				output += prettyPrintDOMStructure(childNode, depth + 1);
+			});
+			break;
+
+		case Node.TEXT_NODE:
+			const text = node.textContent?.trim();
+			if (text) {
+				output += `${indent}"${text}"\n`;
+			}
+			break;
+	}
+
+	return output;
+}
+
 function GetAllMatches(text: string, regex: RegExp): RegExMatch[] {
-	const regexCopy = new RegExp(regex.source, '');
+	// so in the end i guess it does have to be global.
+	// Regex being statefull is just so annoying...
+	// im starting to get why some people hate on OOP
+	const regexCopy = new RegExp(regex.source, 'g');
 	const matches: RegExMatch[] = [];
 
-	let m = regexCopy.exec(text);
+	// let m = regexCopy.exec(text);
+	let m;
 
-	let startIndex = 0;
-	while (m != null) {
+	while ((m = regexCopy.exec(text)) !== null) {
 		matches.push({
 			index: m.index,
 			value: m[0],
 			end: m.index + m[0].length
-		}); 
-
-		startIndex = m.index + m[0].length;
-		m = regexCopy.exec(text.slice(startIndex))
+		});
 	}
 
 	return matches;
