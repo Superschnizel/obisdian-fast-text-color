@@ -64,7 +64,7 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
  * @param {Node} node - [TODO:description]
  * @returns {Node} [TODO:description]
  */
-function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
+function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack: Node[] = []): Node {
 	if (node.nodeName == 'CODE') {
 		return node;
 	}
@@ -85,7 +85,7 @@ function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 	// }
 
 	// create a stack to manage state
-	const nodeStack: Node[] = [];
+	// const nodeStack: Node[] = [];
 
 	// get the children 
 	// const newNode = node.cloneNode(false);
@@ -104,7 +104,7 @@ function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 	nodeStack.push(node);
 
 	let children = node.childNodes;
-	children.forEach((childNode: Node) => {
+	node.childNodes.forEach((childNode: Node) => {
 
 		if (childNode == nodeStack.last()) {
 			// can happen because of appending
@@ -126,7 +126,7 @@ function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 		// console.log(`node: ${childNode.nodeName}, level: ${level}`);
 		if (childNode.nodeType != Node.TEXT_NODE) {
 			// if childnode is not textnode, handle recursively.
-			childNode = rebuildNode(childNode, themeName);
+			childNode = rebuildNode(childNode, themeName, level + 1, nodeStack);
 			// console.log(`rbuilding and appending ${childNode.nodeName} to ${nodeStack.last()?.nodeName}`);
 
 			// nodeStack.last()?.appendChild(rebuildNode(childNode, themeName, level + 1));
@@ -153,6 +153,9 @@ function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 		}
 
 		let count = 0;
+
+		let lastInsertedNode = childNode;
+
 		while ((prefixes.length > 0) || (suffixes.length > 0)) {
 			let nextPrefixPosition = prefixes.last()?.index ?? Number.POSITIVE_INFINITY;
 			let nextSuffixPosition = suffixes.last()?.index ?? Number.POSITIVE_INFINITY;
@@ -173,20 +176,20 @@ function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 				// should never be the case but idk.
 				console.log("nextPre and nextSuf are the same!!: " + `${nextPrefixPosition}`);
 
-				break;
+				return;
 			}
 
-			let referenceNode = childNode;
 
 			if (nextPrefixPosition < nextSuffixPosition) {
 				// next is prefix
-				let prevText = text.slice(lastpos, nextPrefixPosition);
+				let textBeforeDelim = text.slice(lastpos, nextPrefixPosition);
+				let textAfterDelim = text.slice(prefixes.last()!.end);
 				let prefix = prefixes.last()!.value;
 				let color = prefix.slice(3, prefix.length - 1);
 
-				console.log(`handling prefix:\nprevText: ${prevText}`)
+				console.log(`handling prefix:\nprevText: ${textBeforeDelim}`)
 
-				nodeStack.last()?.insertAfter(document.createTextNode(prevText), referenceNode);
+				// nodeStack.last()?.insertAfter(document.createTextNode(prevText), referenceNode);
 
 				// var newPrevNode = document.createTextNode(prevText);
 				// var reference = childNode.parentNode == nodeStack.last()! ? childNode : nodeStack.last()!.lastChild;
@@ -202,40 +205,64 @@ function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 				let colorSpan = document.createElement("span");
 				colorSpan.addClass(`${CSS_COLOR_PREFIX}${themeName}-${color}`);
 
-				// append Text node and then append new color node
-				nodeStack.last()?.insertAfter(colorSpan, childNode);
+				// set text in last node and create color node and insert it after the last node. 
+				lastInsertedNode.nodeValue = textBeforeDelim;
+				nodeStack.last()?.insertAfter(colorSpan, lastInsertedNode);
+
+				// add an empty text node to the span and set is as te lastInsertedNode
+				// this will be filled in the next iteration.
+				let newNode = document.createTextNode("");
+				colorSpan.appendChild(newNode);
+
+				lastInsertedNode = newNode;
+
+				// set the colorSpan to be the new parent.
 				nodeStack.push(colorSpan);
 
-				referenceNode = colorSpan;
 				lastpos = prefixes.last()!.end;
+
+				// childNode.nodeValue = textBeforeDelim;
+
+				// colorSpan.appendChild(document.createTextNode(textAfterDelim));
 
 				// remove prefix from match.
 				prefixes.pop();
 
 				continue;
 			}
-
 			// next is suffix;
-			let prevText = text.slice(lastpos, nextSuffixPosition);
-			childNode.parentNode?.removeChild(childNode);
-			nodeStack.last()?.appendChild(document.createTextNode(prevText));
 
-			console.log(`handling suffix:\nprevText: ${prevText}`)
+			let textBeforeDelim = text.slice(lastpos, nextSuffixPosition);
+			// let textAfterDelim = text.slice(suffixes.last()!.end);
+
+			lastInsertedNode.nodeValue = textBeforeDelim;
+
+			let prevNode = nodeStack.pop()!;
+
+			let newNode = document.createTextNode("");
+			nodeStack.last()?.insertAfter(newNode, prevNode);
+			lastInsertedNode = newNode;
+			// nodeStack.last()?.insertAfter(document.createTextNode(textAfterDelim), prevNode);
+			// let prevText = text.slice(lastpos, nextSuffixPosition);
+			// // childNode.parentNode?.removeChild(childNode);
+			// nodeStack.last()?.appendChild(document.createTextNode(prevText));
+
+			// console.log(`handling suffix:`)
 
 			lastpos = suffixes.last()!.end;
+			//
 
-			nodeStack.pop();
 			suffixes.pop();
 
 			continue;
 		}
 
 		// remove original child node
-		childNode.parentNode?.removeChild(childNode);
+		// childNode.parentNode?.removeChild(childNode);
 
 		if (lastpos <= text.length) {
-			let prevText = text.slice(lastpos);
-			nodeStack.last()?.appendChild(document.createTextNode(prevText));
+			let leftOverText = text.slice(lastpos);
+			lastInsertedNode.nodeValue = leftOverText;
 		}
 	});
 
@@ -251,6 +278,7 @@ function rebuildNode(node: Node, themeName: string, level: number = 0): Node {
 	//
 	// newNode.empty();
 
+	nodeStack.pop();
 	return node;
 
 }
