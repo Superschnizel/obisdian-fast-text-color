@@ -40,8 +40,11 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
  * Rebuilds the Node Tree and adds color nodes where necessary.
  * This is done to make sure interactive functionality is not removed from nodes.
  *
- * @param {Node} node - [TODO:description]
- * @returns {Node} [TODO:description]
+ * @param {Node} node - the current node
+ * @param {string} themeName - the name of the current theme. needed to ensure proper colors.
+ * @param {number} [level] - the current recursion level.
+ * @param {Node[]} [nodeStack] - a stack to keep track of added color nodes.
+ * @returns {Node} the rebuilt node.
  */
 function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack: Node[] = []): Node {
 	if (node.nodeName == 'CODE') {
@@ -49,7 +52,7 @@ function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack
 	}
 
 	if (level > 1000) {
-		console.log("reached depth 1000 in recursion");
+		console.error("fatal: reached depth 1000 in recursion");
 
 	}
 
@@ -63,19 +66,11 @@ function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack
 
 		let childNode: Node = node.childNodes.item(i);
 
-		// node.childNodes.forEach((childNode: Node) => {
-
-		// if (childNode == nodeStack.last()) {
-		// 	// can happen because of appending
-		// 	return;
-		// }
 
 		const text = childNode.nodeValue;
-		// console.log(childNode.compareDocumentPosition(nodeStack.last()!));
 
 		// the last item on the stack should always be the current parent.
 		if ((nodeStack.last() != undefined) && (nodeStack.last() != childNode) && !(childNode.compareDocumentPosition(nodeStack.last()!) & Node.DOCUMENT_POSITION_CONTAINS)) {
-			// if (!(childNode.compareDocumentPosition(nodeStack.last()!) & Node.DOCUMENT_POSITION_CONTAINS) && nodeStack.last() != childNode) {
 			console.log(`setting new parent for ${childNode.nodeName}`);
 
 			childNode.parentNode?.removeChild(childNode);
@@ -91,13 +86,12 @@ function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack
 		if (childNode.nodeType != Node.TEXT_NODE) {
 			// if childnode is not textnode, handle recursively.
 			childNode = rebuildNode(childNode, themeName, level + 1, nodeStack);
-			// console.log(`rbuilding and appending ${childNode.nodeName} to ${nodeStack.last()?.nodeName}`);
 
 			// nodeStack.last()?.appendChild(rebuildNode(childNode, themeName, level + 1));
 			continue;
 		}
 
-		console.log(`node: ${childNode.nodeName}\n  text: ${text}\n  index: ${i}\n  childNode.length: ${node.childNodes.length}\n  lastLength: ${lastLength}`);
+		// console.log(`node: ${childNode.nodeName}\n  text: ${text}\n  index: ${i}\n  childNode.length: ${node.childNodes.length}\n  lastLength: ${lastLength}`);
 
 		if (text == null || text == "") {
 			continue;
@@ -131,7 +125,7 @@ function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack
 			let prefixContent = prefix.value;
 			let color = prefixContent.slice(3, prefixContent.length - 1);
 
-			console.log(`handling prefix:\nprevText: ${textBeforeDelim}\nnextText: ${textAfterDelim}`)
+			// console.log(`handling prefix:\nprevText: ${textBeforeDelim}\nnextText: ${textAfterDelim}`)
 
 			// create the color element
 			let colorSpan = document.createElement("span");
@@ -155,7 +149,7 @@ function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack
 		let textBeforeDelim = text.slice(0, nextSuffixPosition);
 		let textAfterDelim = text.slice(suffix!.end);
 
-		console.log(`handling suffix:\nprevText: ${textBeforeDelim}\nnextText: ${textAfterDelim}`);
+		// console.log(`handling suffix:\nprevText: ${textBeforeDelim}\nnextText: ${textAfterDelim}`);
 
 		childNode.nodeValue = textBeforeDelim;
 
@@ -170,6 +164,14 @@ function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack
 	return node;
 }
 
+/**
+ * Print out the Dom Structure. Used for debugging. AI generated.
+ * (should probably be moved to a helperclass)
+ *
+ * @param {Node} node - the current node
+ * @param {number} [depth] - the depth of the recursion
+ * @returns {string} the pretty printed dom Structure
+ */
 function prettyPrintDOMStructure(node: Node, depth: number = 0): string {
 	const indent = '  '.repeat(depth);
 	let output = '';
