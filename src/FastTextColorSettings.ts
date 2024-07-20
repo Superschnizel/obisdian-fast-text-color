@@ -30,7 +30,8 @@ export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	themeIndex: 0,
 	version: SETTINGS_VERSION,
 	interactiveDelimiters: true,
-	useKeybindings: true
+	useKeybindings: true,
+	useNodeRebuilding: false
 }
 
 
@@ -41,6 +42,7 @@ export interface FastTextColorPluginSettings {
 	version: string;
 	interactiveDelimiters: boolean;
 	useKeybindings: boolean;
+	useNodeRebuilding: boolean;
 }
 
 // --------------------------------------------------------------------------
@@ -133,7 +135,8 @@ export function updateSettings(settings: any): FastTextColorPluginSettings {
 				themeIndex: 0,
 				version: SETTINGS_VERSION,
 				interactiveDelimiters: settings.interactiveDelimiters,
-				useKeybindings: true
+				useKeybindings: true,
+				useNodeRebuilding: false
 			}
 			return outSettings;
 
@@ -143,6 +146,10 @@ export function updateSettings(settings: any): FastTextColorPluginSettings {
 			return DEFAULT_SETTINGS;
 	}
 }
+
+// --------------------------------------------------------------------------
+//                           Settings Tab
+// --------------------------------------------------------------------------
 
 export class FastTextColorPluginSettingTab extends PluginSettingTab {
 	plugin: FastTextColorPlugin;
@@ -232,6 +239,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		const themeColorsEl = containerEl.createDiv();
 		themeColorsEl.addClass("ftc-theme-colors");
 
+		// Create Settings for individual Colors.
 		let count = 1;
 		getColors(settings, this.themeIndex).forEach((color: TextColor) => {
 			this.createColorSetting(themeColorsEl, color, count);
@@ -292,6 +300,17 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			})
+
+		new Setting(containerEl)
+			.setName("Use node rebuilding (EXPERIMENTAL)")
+			.setDesc("Enable node rebuilding in the postprocessing. Should fix most issues with objects loosing interactivity.\nBecause this feature is still in testing, enabling it might lead to unforseen rendering errors or (very unlikely) crashing.\nIf you find any issues with this rendering method please report them at the plugins github.")
+			.addToggle(tgl => {
+				tgl.setValue(settings.useNodeRebuilding)
+				.onChange(async value => {
+						settings.useNodeRebuilding = value;
+						await this.plugin.saveSettings();
+				})
+		})
 	}
 
 	/**

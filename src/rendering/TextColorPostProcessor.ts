@@ -19,19 +19,52 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
 
 	const emergencyCopy = el.cloneNode(true);
 
-	try {
-		rebuildNode(el, themeName);
-	} catch (e) {
-		console.error(`fatal in rebuildNode: ${e}`)
-		// readd from emergency Copy. should be removed as soon as node rebuilding is stable.
-		el.childNodes.forEach(c => {
-			c.parentNode?.removeChild(c);
-		})
+	if (settings.useNodeRebuilding) {
+		try {
+			rebuildNode(el, themeName);
+		} catch (e) {
+			console.error(`fatal in rebuildNode: ${e}`)
+			// readd from emergency Copy. should be removed as soon as node rebuilding is stable.
+			el.childNodes.forEach(c => {
+				c.parentNode?.removeChild(c);
+			})
 
-		emergencyCopy.childNodes.forEach(c => {
-			el.appendChild(c);
-		})
+			emergencyCopy.childNodes.forEach(c => {
+				el.appendChild(c);
+			})
+		}
+		return;
 	}
+
+	const split = el.innerHTML.split(/\<code/g);
+
+	let inner = '';
+
+	for (let i = 0; i < split.length; i++) {
+		if (i % 2 == 0) {
+			inner += split[i].replace(PREFIX, (match) => {
+				return `<span class="${CSS_COLOR_PREFIX}${themeName}-${match.slice(3, match.length - 1)}">`;
+			}).replace(SUFFIX, "</span>")
+			continue;
+		}
+
+		inner += "<code"
+		const innerSplit = split[i].split("</code>")
+
+		for (let j = 0; j < innerSplit.length; j++) {
+			if (j % 2 == 0) {
+				inner += innerSplit[j];
+				continue;
+			}
+			inner += "</code>" + innerSplit[i].replace(PREFIX, (match) => {
+				return `<span class="${CSS_COLOR_PREFIX}${themeName}-${match.slice(3, match.length - 1)}">`;
+			}).replace(SUFFIX, "</span>")
+
+		}
+	}
+
+	el.innerHTML = inner;
+
 	return;
 }
 
