@@ -118,8 +118,11 @@ export function deleteTheme(settings: FastTextColorPluginSettings, index: number
 	if (index == -1) {
 		index = settings.themeIndex;
 	}
-	settings.themes.slice(index, 1);
-	settings.themeIndex = 0;
+	settings.themes.remove(settings.themes[index]);
+
+	if (index <= settings.themeIndex) {
+		settings.themeIndex = Math.max(settings.themeIndex - 1, 0);
+	}
 }
 
 // UPDATESETTINGS
