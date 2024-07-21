@@ -69,8 +69,11 @@ export function getColors(settings: FastTextColorPluginSettings, index: number =
  *
  * @param {FastTextColorPluginSettings} settings - the plugin settings.
  */
-export function getCurrentTheme(settings: FastTextColorPluginSettings) {
-	return settings.themes[settings.themeIndex];
+export function getCurrentTheme(settings: FastTextColorPluginSettings, index: number = -1): TextColorTheme {
+	if (index == -1) {
+		index = settings.themeIndex;
+	}
+	return settings.themes[index];
 }
 
 // THEME functions
@@ -156,13 +159,13 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 	newId: string;
 
-	themeIndex: number;
+	editThemeIndex: number;
 
 	constructor(app: App, plugin: FastTextColorPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 		this.newId = ''
-		this.themeIndex = plugin.settings.themeIndex;
+		this.editThemeIndex = plugin.settings.themeIndex;
 	}
 
 
@@ -194,6 +197,9 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 				})
 			})
 
+		// ------------------------------------------------------------------
+		//                       THEME SETTINGS
+		// ------------------------------------------------------------------
 
 		new Setting(containerEl)
 			.setName("Edit themes")
@@ -205,9 +211,9 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					dd.addOption(count.toString(), theme.name)
 					count++;
 				});
-				dd.setValue(this.themeIndex.toString())
+				dd.setValue(this.editThemeIndex.toString())
 				dd.onChange(value => {
-					this.themeIndex = +value;
+					this.editThemeIndex = +value;
 					this.display();
 				})
 			})
@@ -241,7 +247,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 		// Create Settings for individual Colors.
 		let count = 1;
-		getColors(settings, this.themeIndex).forEach((color: TextColor) => {
+		getColors(settings, this.editThemeIndex).forEach((color: TextColor) => {
 			this.createColorSetting(themeColorsEl, color, count);
 			count++;
 		});
@@ -259,11 +265,13 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.addButton(btn => {
 				btn.setButtonText("+")
 					.onClick(async evt => {
-						if (getColors(settings).some(tColor => { return tColor.id == this.newId })) {
+						let colors = getColors(settings, this.editThemeIndex);
+						if (colors.some(tColor => { return tColor.id == this.newId })) {
 							new Notice(`color with id ${this.newId} already exists!`);
 						}
 
-						getColors(settings).push(new TextColor("#ffffff", this.newId == '' ? (getColors(settings).length + 1).toString() : this.newId, getCurrentTheme(settings).name));
+						let newColorName = this.newId == '' ? (colors.length + 1).toString() : this.newId;
+						colors.push(new TextColor("#ffffff", newColorName , getCurrentTheme(settings, this.editThemeIndex).name));
 						await this.plugin.saveSettings();
 						this.display();
 					})
