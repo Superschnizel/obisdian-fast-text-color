@@ -111,11 +111,14 @@ export function selectPreviousTheme(settings: FastTextColorPluginSettings) {
  *
  * @param {FastTextColorPluginSettings} settings - the plugin settings.
  */
-export function deleteCurrentTheme(settings: FastTextColorPluginSettings) {
+export function deleteTheme(settings: FastTextColorPluginSettings, index: number = -1) {
 	if (settings.themes.length <= 1) {
 		return;
 	}
-	settings.themes.slice(settings.themeIndex, 1);
+	if (index == -1) {
+		index = settings.themeIndex;
+	}
+	settings.themes.slice(index, 1);
 	settings.themeIndex = 0;
 }
 
@@ -236,7 +239,10 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setTooltip("delete theme")
 					.onClick(async evt => {
 						if (await confirmByModal(this.app, `Are you sure?\n The theme ${settings.themes[settings.themeIndex].name} will no longer be available. `)) {
-							deleteCurrentTheme(settings);
+							deleteTheme(settings, this.editThemeIndex);
+							this.editThemeIndex = 0;
+							this.plugin.saveSettings();
+							this.display();
 						}
 					})
 
