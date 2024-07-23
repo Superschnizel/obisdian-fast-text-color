@@ -15,7 +15,7 @@ export const textColorPostProcessor = (el: HTMLElement, context: MarkdownPostPro
 	let themeName = context.frontmatter ? context.frontmatter["ftcTheme"] : null;
 	themeName = themeName ? themeName : getCurrentTheme(settings).name;
 
-	console.log(prettyPrintDOMStructure(el));
+	// console.log(prettyPrintDOMStructure(el));
 
 	const emergencyCopy = el.cloneNode(true);
 

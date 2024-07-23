@@ -1,30 +1,19 @@
 import {
 	Editor,
-	EditorPosition,
 	MarkdownView,
-	Modal,
 	Notice,
 	Plugin,
-	PluginSettingTab,
-	Setting,
 	Menu,
-	HoverPopover,
-	Component,
-	HoverParent,
 	Scope,
 	ButtonComponent,
-	MenuItem,
-	MarkdownFileInfo
 } from 'obsidian';
-import { CreateCaptureScope } from 'src/utils/CreateCaptureScope';
 import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION, updateSettings, CSS_COLOR_PREFIX } from 'src/FastTextColorSettings';
 import { TextColor } from 'src/color/TextColor';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
 import { textColorParserField } from 'src/rendering/TextColorStateField';
 import { textColorPostProcessor } from 'src/rendering/TextColorPostProcessor'
-import { syntaxTree } from "@codemirror/language";
-import { EditorState, Prec, Extension, Compartment, ChangeSpec } from "@codemirror/state";
+import { EditorState, Prec, Extension, Compartment } from "@codemirror/state";
 import { keymap, EditorView } from '@codemirror/view'
 import { settingsFacet } from "./src/SettingsFacet";
 
@@ -48,7 +37,7 @@ export default class FastTextColorPlugin extends Plugin {
 		// setup Editor Extensions
 		this.registerEditorExtension(textColorParserField);
 		this.registerEditorExtension(textColorViewPlugin);
-		this.registerMarkdownPostProcessor((el, ctx) => { textColorPostProcessor(el, ctx, this.settings); });
+		this.registerMarkdownPostProcessor((el, ctx) => { textColorPostProcessor(el, ctx, this.settings); }, -10000);
 
 		// to make settings available in the ViewPlugin.
 		this.settingsCompartment = new Compartment();
