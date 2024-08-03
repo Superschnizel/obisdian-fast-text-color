@@ -16,14 +16,13 @@ export const VAR_COLOR_PREFIX = "--ftc-color-"
 export const SETTINGS_VERSION = "3"
 
 export const DEFAULT_COLORS = [
-	new TextColor("#ff0000", `red`, "default", false, false, 0, 0, 'A'),
-	new TextColor("#ea732a", `orange`, "default", false, false, 0, 0, 'S'),
-	new TextColor("#f0cc2e", `yellow`, "default", false, false, 0, 0, 'D'),
-	new TextColor("#bc18dc", `magenta`, "default", false, false, 0, 0, 'F'),
-	new TextColor("#51070f", `green`, "default", false, false, 0, 0, 'J'),
-	new TextColor("#28c883", `cyan`, "default", false, false, 0, 0, 'K'),
-	new TextColor("#2778ff", `blue`, "default", false, false, 0, 0, 'L'),
-	new TextColor("#123f59", `black`, "default", false, false, 0, 0, 'Ö')];
+	new TextColor("#ff0000", `red`,     "default", false, false, 0, 0, 'R'),
+	new TextColor("#00ff00", `green`,   "default", false, false, 0, 0, 'G'),
+	new TextColor("#0000ff", `blue`,    "default", false, false, 0, 0, 'B'),
+	new TextColor("#00ffff", `cyan`,    "default", false, false, 0, 0, 'C'),
+	new TextColor("#ff00ff", `magenta`, "default", false, false, 0, 0, 'M'),
+	new TextColor("#ffff00", `yellow`,  "default", false, false, 0, 0, 'Y'),
+	new TextColor("#000000", `black`,   "default", false, false, 0, 0, 'K')];
 
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	themes: [new TextColorTheme("default", DEFAULT_COLORS)],
