@@ -317,16 +317,16 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					})
 			})
 
-		new Setting(containerEl)
-			.setName("Use node rebuilding (EXPERIMENTAL)")
-			.setDesc("Enable node rebuilding in the postprocessing. Should fix most issues with objects loosing interactivity.\nBecause this feature is still in testing, enabling it might lead to unforseen rendering errors or (very unlikely) crashing.\nIf you find any issues with this rendering method please report them at the plugins github.")
-			.addToggle(tgl => {
-				tgl.setValue(settings.useNodeRebuilding)
-				.onChange(async value => {
-						settings.useNodeRebuilding = value;
-						await this.plugin.saveSettings();
-				})
-		})
+		// new Setting(containerEl)
+		// 	.setName("Use node rebuilding (EXPERIMENTAL)")
+		// 	.setDesc("Enable node rebuilding in the postprocessing. Should fix most issues with objects loosing interactivity.\nBecause this feature is still in testing, enabling it might lead to unforseen rendering errors or (very unlikely) crashing.\nIf you find any issues with this rendering method please report them at the plugins github.")
+		// 	.addToggle(tgl => {
+		// 		tgl.setValue(settings.useNodeRebuilding)
+		// 		.onChange(async value => {
+		// 				settings.useNodeRebuilding = value;
+		// 				await this.plugin.saveSettings();
+		// 		})
+		// })
 	}
 
 	/**
