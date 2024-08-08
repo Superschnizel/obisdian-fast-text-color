@@ -54,6 +54,13 @@
 	background-color: var(--interactive-accent) !important;
 }
 
+.ftc-uppercase {
+	text-transform: uppercase;
+}
+
+.ftc-small-caps {
+	font-variant: small-caps;
+}
 
 .ftc-keybind-button {
 	width: var(--size-4-8);

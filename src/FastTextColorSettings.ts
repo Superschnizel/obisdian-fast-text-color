@@ -420,7 +420,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.addButton(btn => {
 				btn
 					.setButtonText("U")
-					.setTooltip(tColor.line_mode.state)
+					.setTooltip("Lining")
 					.setClass("ftc-format-item")
 					.onClick(async evt => {
 						// cycle through enum
@@ -428,7 +428,6 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.line_mode.state != "none");
 						btn.buttonEl.setCssStyles({ textDecoration: tColor.line_mode.state });
-						btn.setTooltip(tColor.line_mode.state);
 
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
@@ -443,7 +442,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			.addButton(btn => {
 				btn
 					.setButtonText("Tt")
-					.setTooltip(tColor.cap_mode.state)
+					.setTooltip("Capitalization")
 					.setClass("ftc-format-item")
 
 					.onClick(async evt => {
@@ -451,11 +450,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						tColor.cap_mode.cycle();
 
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.cap_mode.state != "normal");
-						btn.buttonEl.setCssStyles(
-							tColor.cap_mode.state == "all_caps" ? { textTransform: "uppercase" }
-								: tColor.cap_mode.state == "small_caps" ? { fontVariant: "small_caps" } : {}
-						);
-						btn.setTooltip(tColor.cap_mode.state);
+						btn.buttonEl.toggleClass("ftc-uppercase", tColor.cap_mode.state == "all_caps");
+						btn.buttonEl.toggleClass("ftc-small-caps", tColor.cap_mode.state == "small_caps");
 
 						await this.plugin.saveSettings();
 						this.plugin.setCssVariables();
