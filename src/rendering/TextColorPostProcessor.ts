@@ -69,7 +69,6 @@ function rebuildNode(node: Node, themeName: string, level: number = 0, nodeStack
 
 		// the last item on the stack should always be the current parent.
 		if ((nodeStack.last() != undefined) && (nodeStack.last() != childNode) && !(childNode.compareDocumentPosition(nodeStack.last()!) & Node.DOCUMENT_POSITION_CONTAINS)) {
-			console.log(`setting new parent for ${childNode.nodeName}`);
 
 			childNode.parentNode?.removeChild(childNode);
 			nodeStack.last()?.appendChild(childNode);

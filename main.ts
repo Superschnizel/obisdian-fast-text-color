@@ -37,7 +37,7 @@ export default class FastTextColorPlugin extends Plugin {
 		// setup Editor Extensions
 		this.registerEditorExtension(textColorParserField);
 		this.registerEditorExtension(textColorViewPlugin);
-		this.registerMarkdownPostProcessor((el, ctx) => { textColorPostProcessor(el, ctx, this.settings); }, -10000);
+		this.registerMarkdownPostProcessor((el, ctx) => { textColorPostProcessor(el, ctx, this.settings); }, -1000);
 
 		// to make settings available in the ViewPlugin.
 		this.settingsCompartment = new Compartment();
