@@ -149,10 +149,9 @@ export default class FastTextColorPlugin extends Plugin {
 		await this.saveData(this.settings);
 
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-		const editorView = (view?.editor as any).cm as EditorView;
+		const editorView = (view?.editor as any)?.cm as EditorView;
 
 		if (editorView == null) {
-			console.log("editorView is null! Settings might not apply to Editor");
 			return;
 		}
 
