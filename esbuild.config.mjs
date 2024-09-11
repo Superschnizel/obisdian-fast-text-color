@@ -20,6 +20,7 @@ function compileSCSS() {
 	sass.render({
 		file: 'styles/styles.scss', // Input SCSS file
 		outFile: 'styles.css', // Output CSS file
+		// loadPaths: ["./styles"]
 	}, (error, result) => {
 		if (!error) {
 			fs.writeFileSync('styles.css', result.css.toString());

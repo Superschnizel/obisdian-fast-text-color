@@ -16,13 +16,13 @@ export const VAR_COLOR_PREFIX = "--ftc-color-"
 export const SETTINGS_VERSION = "3"
 
 export const DEFAULT_COLORS = [
-	new TextColor("#ff0000", `red`,     "default", false, false, 0, 0, 'R'),
-	new TextColor("#00ff00", `green`,   "default", false, false, 0, 0, 'G'),
-	new TextColor("#0000ff", `blue`,    "default", false, false, 0, 0, 'B'),
-	new TextColor("#00ffff", `cyan`,    "default", false, false, 0, 0, 'C'),
+	new TextColor("#ff0000", `red`, "default", false, false, 0, 0, 'R'),
+	new TextColor("#00ff00", `green`, "default", false, false, 0, 0, 'G'),
+	new TextColor("#0000ff", `blue`, "default", false, false, 0, 0, 'B'),
+	new TextColor("#00ffff", `cyan`, "default", false, false, 0, 0, 'C'),
 	new TextColor("#ff00ff", `magenta`, "default", false, false, 0, 0, 'M'),
-	new TextColor("#ffff00", `yellow`,  "default", false, false, 0, 0, 'Y'),
-	new TextColor("#000000", `black`,   "default", false, false, 0, 0, 'K')];
+	new TextColor("#ffff00", `yellow`, "default", false, false, 0, 0, 'Y'),
+	new TextColor("#000000", `black`, "default", false, false, 0, 0, 'K')];
 
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	themes: [new TextColorTheme("default", DEFAULT_COLORS)],
@@ -279,7 +279,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						}
 
 						let newColorName = this.newId == '' ? (colors.length + 1).toString() : this.newId;
-						colors.push(new TextColor("#ffffff", newColorName , getCurrentTheme(settings, this.editThemeIndex).name));
+						colors.push(new TextColor("#ffffff", newColorName, getCurrentTheme(settings, this.editThemeIndex).name));
 						await this.plugin.saveSettings();
 						this.display();
 					})
@@ -338,22 +338,32 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 	 */
 	createColorSetting(container: HTMLElement, tColor: TextColor, count: number): void {
 
-		let frag = new DocumentFragment()
-		let fragdiv = frag.createDiv();
-		fragdiv.addClass("ftc-name-div")
+		let nameFragment = new DocumentFragment()
+		let nameDiv = nameFragment.createDiv();
+		nameDiv.addClass("ftc-name-div")
 
-		const key = fragdiv.createDiv();
+		const key = nameDiv.createDiv();
 		key.innerText = `${tColor.id}`;
 
-		const exampletext = fragdiv.createDiv()
+		const exampletext = nameDiv.createDiv()
 		// exampletext.addClass(`${CSS_COLOR_PREFIX}${tColor.id}`);
 		exampletext.setAttr("style", tColor.getCssInlineStyle());
 		exampletext.innerText = `~={${tColor.id}}This is colored text=~`
 
-		new Setting(container)
-			.setName(frag)
+		// utility function to apply settings and update displaytext
+		let saveAndApply = async () => {
+			await this.plugin.saveSettings();
+			this.plugin.setCssVariables();
+
+			exampletext.setAttr("style", tColor.getCssInlineStyle());
+		}
+
+		const setting = new Setting(container)
+			.setName(nameFragment)
 			// .setClass("fadeInLeft")
 			.setClass("ftc-settings-item")
+
+			// KEYBIND
 			.addButton(btn => {
 				btn
 					.setButtonText(`${tColor.keybind}`.toUpperCase())
@@ -371,6 +381,9 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 				// btn.buttonEl.addClass("ftc-format-left")
 			})
 
+			// -------------------------------------------------------------
+			//                      FORMATTING
+			// -------------------------------------------------------------
 			.addButton(btn => {
 				btn
 					.setButtonText("B")
@@ -383,10 +396,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.bold);
 						btn.buttonEl.setCssStyles({ fontWeight: tColor.bold ? "bold" : "normal" });
 
-						await this.plugin.saveSettings();
-						this.plugin.setCssVariables();
-
-						exampletext.setAttr("style", tColor.getCssInlineStyle());
+						saveAndApply()
 					})
 
 				btn.buttonEl.addClass("ftc-format-left")
@@ -406,10 +416,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.italic);
 						btn.buttonEl.setCssStyles({ fontStyle: tColor.italic ? "italic" : "normal" });
 
-						await this.plugin.saveSettings();
-						this.plugin.setCssVariables();
-
-						exampletext.setAttr("style", tColor.getCssInlineStyle());
+						saveAndApply()
 					})
 
 				btn.buttonEl.addClass("ftc-format-middle")
@@ -429,10 +436,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.line_mode.state != "none");
 						btn.buttonEl.setCssStyles({ textDecoration: tColor.line_mode.state });
 
-						await this.plugin.saveSettings();
-						this.plugin.setCssVariables();
-
-						exampletext.setAttr("style", tColor.getCssInlineStyle());
+						saveAndApply()
 					})
 
 				btn.buttonEl.addClass("ftc-format-middle");
@@ -465,19 +469,70 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					tColor.cap_mode.state == "all_caps" ? { textTransform: "uppercase" }
 						: tColor.cap_mode.state == "small_caps" ? { fontVariant: "small_caps" } : {}
 				);
+			});
+
+		// -------------------------------------------------------------
+		// -------------------------------------------------------------
+
+		if (tColor.useCssColorVariable) {
+			setting.addDropdown(dd => {
+				dd
+					.addOptions({
+						"--color-red" : "red",
+						"--color-orange" : "orange",
+						"--color-yellow" : "yellow",
+						"--color-green" : "green",
+						"--color-cyan" : "cyan",
+						"--color-blue" : "blue",
+						"--color-purple" : "purple",
+						"--color-pink" : "pink",
+						// "--color-blue" : "50",
+						// "--color-blue" : "60",
+						// "--color-blue" : "70",
+						// "--color-base-100": "100",
+					})
+				.setValue(tColor.colorVariable)
+				.onChange((value) => {
+						tColor.colorVariable = value;
+
+						saveAndApply();
+				})
 			})
-			.addColorPicker((cb) => {
+		} else {
+			setting.addColorPicker((cb) => {
 				cb
 					.setValue(tColor.color)
 					.onChange(async (value) => {
 						tColor.color = value;
 
-						this.plugin.setCssVariables();
-						await this.plugin.saveSettings();
-
-						exampletext.setAttr("style", tColor.getCssInlineStyle());
+						saveAndApply();
 					})
 			})
+		}
+
+
+		// COLOR
+		// OBSIDIAN VARIABLES TOGGLE
+		setting.addButton(btn => {
+			btn
+				.setTooltip("use builtin obsidian colors")
+				.setClass("ftc-format-item-small")
+
+				.onClick(async evt => {
+					tColor.useCssColorVariable = !tColor.useCssColorVariable;
+
+					btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.useCssColorVariable);
+
+					saveAndApply()
+
+					this.display()
+				})
+
+			btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.bold);
+			btn.buttonEl.setCssStyles({ fontWeight: tColor.bold ? "bold" : "normal" });
+		})
+
+			// UP-DONW
 			.addButton(btn => {
 				btn
 					.setIcon("chevron-up")
@@ -502,6 +557,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						this.display();
 					})
 			})
+
+			// DELETE
 			.addButton(btn => {
 				btn
 					.setIcon("trash")

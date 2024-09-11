@@ -49,8 +49,8 @@
 }
 
 .ftc-format-item-enabled {
-	width: var(--size-4-6);
-	height: var(--size-4-6);
+	/* width: var(--size-4-6); */
+	/* height: var(--size-4-6); */
 	background-color: var(--interactive-accent) !important;
 }
 
@@ -81,6 +81,14 @@
 .ftc-format-right {
 	border-radius: 0 var(--radius-s) var(--radius-s) 0;
 	margin-left: calc(0px - var(--size-4-2));
+}
+
+.ftc-format-item-small {
+	width: var(--size-4-4);
+	height: var(--size-4-4);
+	padding: 0;
+	/* background-color: var(--interactive-normal); */
+	background-color: red;
 }
 
 .ftc-format-bold {
