@@ -15,6 +15,25 @@ export const VAR_COLOR_PREFIX = "--ftc-color-"
 
 export const SETTINGS_VERSION = "3"
 
+// "--color-red": "red",
+// "--color-orange": "orange",
+// "--color-yellow": "yellow",
+// "--color-green": "green",
+// "--color-cyan": "cyan",
+// "--color-blue": "blue",
+// "--color-purple": "purple",
+// "--color-pink": "pink",
+export const BUILTIN_COLORS = [
+	new TextColor("#000000", "red", "builtin", false, false, 0, 0, 'R', true, "--color-red"),
+	new TextColor("#000000", "orange", "builtin", false, false, 0, 0, 'R', true, "--color-orange"),
+	new TextColor("#000000", "yellow", "builtin", false, false, 0, 0, 'R', true, "--color-yellow"),
+	new TextColor("#000000", "green", "builtin", false, false, 0, 0, 'R', true, "--color-green"),
+	new TextColor("#000000", "cyan", "builtin", false, false, 0, 0, 'R', true, "--color-cyan"),
+	new TextColor("#000000", "blue", "builtin", false, false, 0, 0, 'R', true, "--color-blue"),
+	new TextColor("#000000", "purple", "builtin", false, false, 0, 0, 'R', true, "--color-purple"),
+	new TextColor("#000000", "pink", "builtin", false, false, 0, 0, 'R', true, "--color-pink"),
+]
+
 export const DEFAULT_COLORS = [
 	new TextColor("#ff0000", `red`, "default", false, false, 0, 0, 'R'),
 	new TextColor("#00ff00", `green`, "default", false, false, 0, 0, 'G'),
@@ -24,8 +43,9 @@ export const DEFAULT_COLORS = [
 	new TextColor("#ffff00", `yellow`, "default", false, false, 0, 0, 'Y'),
 	new TextColor("#000000", `black`, "default", false, false, 0, 0, 'K')];
 
+
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
-	themes: [new TextColorTheme("default", DEFAULT_COLORS)],
+	themes: [new TextColorTheme("default", DEFAULT_COLORS), new TextColorTheme("builtin", BUILTIN_COLORS)],
 	themeIndex: 0,
 	version: SETTINGS_VERSION,
 	interactiveDelimiters: true,
@@ -478,25 +498,25 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 			setting.addDropdown(dd => {
 				dd
 					.addOptions({
-						"--color-red" : "red",
-						"--color-orange" : "orange",
-						"--color-yellow" : "yellow",
-						"--color-green" : "green",
-						"--color-cyan" : "cyan",
-						"--color-blue" : "blue",
-						"--color-purple" : "purple",
-						"--color-pink" : "pink",
+						"--color-red": "red",
+						"--color-orange": "orange",
+						"--color-yellow": "yellow",
+						"--color-green": "green",
+						"--color-cyan": "cyan",
+						"--color-blue": "blue",
+						"--color-purple": "purple",
+						"--color-pink": "pink",
 						// "--color-blue" : "50",
 						// "--color-blue" : "60",
 						// "--color-blue" : "70",
 						// "--color-base-100": "100",
 					})
-				.setValue(tColor.colorVariable)
-				.onChange((value) => {
+					.setValue(tColor.colorVariable)
+					.onChange((value) => {
 						tColor.colorVariable = value;
 
 						saveAndApply();
-				})
+					})
 			})
 		} else {
 			setting.addColorPicker((cb) => {
@@ -524,12 +544,10 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.useCssColorVariable);
 
 					saveAndApply()
-
 					this.display()
 				})
 
-			btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.bold);
-			btn.buttonEl.setCssStyles({ fontWeight: tColor.bold ? "bold" : "normal" });
+			btn.buttonEl.toggleClass("ftc-format-item-enabled", tColor.useCssColorVariable);
 		})
 
 			// UP-DONW

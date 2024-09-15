@@ -21,3 +21,6 @@ data - Kopie.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+# Exclude debug data files
+data_old.json

@@ -140,7 +140,7 @@ export default class FastTextColorPlugin extends Plugin {
 			const colors = getColors(this.settings, j);
 			for (let i = 0; i < colors.length; i++) {
 				let obj: TextColor = colors[i]
-				colors[i] = new TextColor(obj.color, obj.id, this.settings.themes[j].name, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind);
+				colors[i] = new TextColor(obj.color, obj.id, this.settings.themes[j].name, obj.italic, obj.bold, obj.cap_mode.index, obj.line_mode.index, obj.keybind, obj.useCssColorVariable, obj.colorVariable);
 			}
 		}
 	}

@@ -33,7 +33,7 @@ The id maps to one of the color formats provided by the current active theme, wh
 
 The formatting options include:
 
-- $\textsf{{\color[rgb]{1.0, 0.0, 0.0}T}{\color[rgb]{1.0, 0.5, 0.0}e}{\color[rgb]{1.0, 1.0, 0.0}x}{\color[rgb]{0.0, 1.0, 0.0}t~ }{\color[rgb]{0.0, 1.0, 1.0}c}{\color[rgb]{0.0, 0.0, 1.0}o}{\color[rgb]{0.33, 0.0, 0.5}l}{\color[rgb]{1.0, 0.0, 1.0}o}{\color[rgb]{1.0, 0.0, 0.5}r}}$
+- $\textsf{{\color[rgb]{1.0, 0.0, 0.0}T}{\color[rgb]{1.0, 0.5, 0.0}e}{\color[rgb]{1.0, 1.0, 0.0}x}{\color[rgb]{0.0, 1.0, 0.0}t~ }{\color[rgb]{0.0, 1.0, 1.0}c}{\color[rgb]{0.0, 0.0, 1.0}o}{\color[rgb]{0.33, 0.0, 0.5}l}{\color[rgb]{1.0, 0.0, 1.0}o}{\color[rgb]{1.0, 0.0, 0.5}r}}$: custom or provided by the active Obsidian theme.
 - **Bold**
 - *Italics*
 - <ins>Under</ins>-, o̅v̅e̅r̅-, and ~~through~~lines
