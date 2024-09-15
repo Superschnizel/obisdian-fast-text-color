@@ -25,13 +25,13 @@ export const SETTINGS_VERSION = "3"
 // "--color-pink": "pink",
 export const BUILTIN_COLORS = [
 	new TextColor("#000000", "red", "builtin", false, false, 0, 0, 'R', true, "--color-red"),
-	new TextColor("#000000", "orange", "builtin", false, false, 0, 0, 'R', true, "--color-orange"),
-	new TextColor("#000000", "yellow", "builtin", false, false, 0, 0, 'R', true, "--color-yellow"),
-	new TextColor("#000000", "green", "builtin", false, false, 0, 0, 'R', true, "--color-green"),
-	new TextColor("#000000", "cyan", "builtin", false, false, 0, 0, 'R', true, "--color-cyan"),
-	new TextColor("#000000", "blue", "builtin", false, false, 0, 0, 'R', true, "--color-blue"),
-	new TextColor("#000000", "purple", "builtin", false, false, 0, 0, 'R', true, "--color-purple"),
-	new TextColor("#000000", "pink", "builtin", false, false, 0, 0, 'R', true, "--color-pink"),
+	new TextColor("#000000", "orange", "builtin", false, false, 0, 0, 'O', true, "--color-orange"),
+	new TextColor("#000000", "yellow", "builtin", false, false, 0, 0, 'Y', true, "--color-yellow"),
+	new TextColor("#000000", "green", "builtin", false, false, 0, 0, 'G', true, "--color-green"),
+	new TextColor("#000000", "cyan", "builtin", false, false, 0, 0, 'C', true, "--color-cyan"),
+	new TextColor("#000000", "blue", "builtin", false, false, 0, 0, 'B', true, "--color-blue"),
+	new TextColor("#000000", "purple", "builtin", false, false, 0, 0, 'P', true, "--color-purple"),
+	new TextColor("#000000", "pink", "builtin", false, false, 0, 0, 'I', true, "--color-pink"),
 ]
 
 export const DEFAULT_COLORS = [
@@ -50,7 +50,7 @@ export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	version: SETTINGS_VERSION,
 	interactiveDelimiters: true,
 	useKeybindings: true,
-	useNodeRebuilding: false
+	useNodeRebuilding: false,
 }
 
 
@@ -327,8 +327,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					})
 			})
 		new Setting(containerEl)
-			.setName("Use keybindings")
-			.setDesc("If enabled will allow you to use keybindings to activate colors from the colormenu")
+			.setName("Use keybindings and colormenu")
+			.setDesc("If enabled will allow you to use keybindings to activate colors from a custom colormenu.")
 			.addToggle(tgl => {
 				tgl.setValue(settings.useKeybindings)
 					.onChange(async value => {

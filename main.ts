@@ -6,8 +6,9 @@ import {
 	Menu,
 	Scope,
 	ButtonComponent,
+	Modal,
 } from 'obsidian';
-import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION, updateSettings, CSS_COLOR_PREFIX } from 'src/FastTextColorSettings';
+import { DEFAULT_SETTINGS, FastTextColorPluginSettingTab, FastTextColorPluginSettings, getColors, SETTINGS_VERSION, updateSettings, CSS_COLOR_PREFIX, getCurrentTheme } from 'src/FastTextColorSettings';
 import { TextColor } from 'src/color/TextColor';
 import { PREFIX, SUFFIX } from 'src/utils/regularExpressions';
 import { textColorViewPlugin } from 'src/rendering/TextColorViewPlugin'
@@ -16,6 +17,8 @@ import { textColorPostProcessor } from 'src/rendering/TextColorPostProcessor'
 import { EditorState, Prec, Extension, Compartment } from "@codemirror/state";
 import { keymap, EditorView } from '@codemirror/view'
 import { settingsFacet } from "./src/SettingsFacet";
+import { applyColor, removeColor } from "src/color/TextColorFunctions";
+import { ColorSuggestModal } from 'src/utils/ColorSuggestModal';
 
 const MAX_MENU_ITEMS: number = 10;
 
@@ -71,7 +74,7 @@ export default class FastTextColorPlugin extends Plugin {
 				// @ts-expect-error, not typed
 				const editorView = view.editor.cm as EditorView;
 
-				this.removeColor(editor, editorView);
+				removeColor(editor, editorView);
 			}
 		})
 
@@ -95,7 +98,7 @@ export default class FastTextColorPlugin extends Plugin {
 								.setTitle(tColor.id)
 								.setIcon("circle")
 								.onClick(evt => {
-									this.applyColor(tColor, editor);
+									applyColor(tColor, editor);
 								});
 
 							// @ts-ignore
@@ -167,13 +170,14 @@ export default class FastTextColorPlugin extends Plugin {
 	 * @param {Editor} editor - [TODO:description]
 	 */
 	openColorMenu(editor: Editor) {
-		// const cursorPos = editor.getCursor('from');
-		// const cursorOffset = editor.posToOffset(cursorPos);
+		if (!this.settings.useKeybindings) {
+			// if keybindings are not used create a normal choice
+			let modal = new ColorSuggestModal(this.app, getColors(this.settings), editor);
+			modal.open();
+			return;
+		}
 
-		// @ts-ignore
-		// const coordsAtPos = editor.cm.coordsAtPos(cursorOffset, -1)
-		//
-		//
+
 		// TODO: do i really need to rebuild this every time?
 		if (this.colorMenu != null) {
 			// console.log('colorMenu already exists');
@@ -236,7 +240,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 				// let n = new Notice("activated color");
 				// n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
-				this.applyColor(tColor, editor);
+				applyColor(tColor, editor);
 				this.closeColorMenu();
 				return false;
 			});
@@ -269,91 +273,6 @@ export default class FastTextColorPlugin extends Plugin {
 
 		// TODO arrow keys movement.
 		// TODO mouse click ends
-	}
-
-	applyColor(tColor: TextColor, editor: Editor) {
-
-		let prefix = `~={${tColor.id}}`;
-		let suffix = `=~`;
-
-		// nothing is selected, just insert coloring
-		if (!editor.somethingSelected()) {
-			editor.replaceSelection(prefix);
-
-			let pos = editor.getCursor();
-			// console.log(`line: ${pos.line}, ch: ${pos.ch}`);
-			editor.replaceSelection(suffix);
-
-			editor.setCursor(pos);
-
-			// push a scope onto the stack to be able to jump out with tab
-			// this made more Problems than it was worth... maybe readd later.
-
-			// let scope = CreateCaptureScope(editor, this.app, pos, suffix);
-
-			// this.app.keymap.pushScope(scope);
-			return;
-		}
-
-		let selected = editor.getSelection();
-
-		// TODO check if there already is some coloring applied somewhere near.
-		// for now just check if what is marked is already a colored section and trim tags:
-		// if (selected.match(IS_COLORED)) {
-		// 	selected = selected.replace(LEADING_SPAN, '');
-		// 	selected = selected.replace(TRAILING_SPAN, '');
-		// }
-
-		let coloredText = `${prefix}${selected}${suffix}`;
-
-		editor.replaceSelection(coloredText);
-	}
-
-	/**
-	 * Removes the color for the text tha the cursor in in.
-	 *
-	 * @param {Editor} editor 
-	 * @param {EditorView} view
-	 */
-	removeColor(editor: Editor, view: EditorView) {
-		// for now only works if span is leading and trailing
-
-		const tree = view.state.field(textColorParserField).tree;
-
-		let node = tree.resolveInner(view.state.selection.main.head);
-
-		while (node.parent != null) {
-			if (node.type.name != "Expression") {
-				node = node.parent;
-				continue;
-			}
-
-			const TcLeft = node.getChild("TcLeft");
-			const Rmarker = node.getChild("TcRight")?.getChild("REnd")?.getChild("RMarker");
-
-			view.dispatch({
-				changes: [{
-					from: TcLeft ? TcLeft.from : 0,
-					to: TcLeft ? TcLeft.to : 0,
-					insert: ''
-				}, {
-					from: Rmarker ? Rmarker.from : 0,
-					to: Rmarker ? Rmarker.to : 0,
-					insert: ''
-				}
-				]
-			})
-
-			return;
-		}
-
-		return;
-
-		let selected = editor.getSelection();
-
-		selected = selected.replace(PREFIX, '');
-		selected = selected.replace(SUFFIX, '');
-		editor.replaceSelection(selected);
 	}
 
 	/**
@@ -394,7 +313,7 @@ export default class FastTextColorPlugin extends Plugin {
 			.onClick(() => {
 				let n = new Notice("activated color");
 				n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
-				this.applyColor(tColor, editor);
+				applyColor(tColor, editor);
 				this.closeColorMenu();
 			})
 			.buttonEl.setAttr("style", `background-color: ${tColor.color}`);

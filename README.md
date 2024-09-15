@@ -61,11 +61,15 @@ If the interactive delimiter option is enabled in the settings (default), you ca
 
 <img src="https://github.com/Superschnizel/obisdian-fast-text-color/assets/47162464/06587d0b-9e3d-4b24-9427-9ab5f655060b" width="30%">
 
+### Command
+
+Calling the `change text color` command lets you choose one of the colors that are available from the currently selected theme using a suggester modal.
+
 #### Coloring Menu
 
-Calling the `change text color` command opens the coloring menu, which allows you to choose the color of the selected text or insert a colored section if no text is selected.
+If the option *Use keybindings and colormenu* is set, calling the `change text color` command instead opens the coloring menu.
 
-You can select a color by clicking the corresponding button or using the keybind assigned in the theme editor.  Keybinds can be disabled entirely in the settings, if desired.
+You can select a color by clicking the corresponding button or using the keybind assigned in the theme editor.
 
 <p float="left">
 	<img src="https://github.com/Superschnizel/obisdian-fast-text-color/assets/47162464/6ff82ee6-e096-4095-9cd3-03839d15fe18" width="49%">
