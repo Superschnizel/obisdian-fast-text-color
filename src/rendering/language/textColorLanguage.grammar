@@ -15,7 +15,9 @@ Unfinished { LMarker Color? (ColorEOF | ColorWS)
 
 REnd { RMarker | ENDLN | EOF }
 
-Text { char+ }
+Text { Word | Word? (CodeSection Word?)+ }
+
+Word { char+ }
 
 @tokens {
   LMarker { "~={" }

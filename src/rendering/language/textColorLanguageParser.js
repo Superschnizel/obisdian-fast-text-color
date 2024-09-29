@@ -2,15 +2,15 @@
 import {LRParser, LocalTokenGroup} from "@lezer/lr"
 export const parser = LRParser.deserialize({
   version: 14,
-  states: "%dQQOPOOOcOQO'#C_OqOPO'#C^O!SOPO'#CmOOOO'#Co'#CoQQOPOOOOOO'#Ca'#CaO!eOQO,59UOOOO,58y,58yOOOO,59U,59UO!pOQO'#C_OOOO'#Cp'#CpO!xOPO'#CeOOOO'#Cf'#CfO#ZOPO'#CqO#lOPO'#CdO#lOPO'#CdO#zOPO'#C^OOOO,58x,58xOOOO'#Cr'#CrO$SOPO,59XOOOO,59X,59XOOOO-E6m-E6mOOOO,58{,58{OOOO1G.p1G.pO$eOQO'#CaOOOO-E6n-E6nOOOO,59],59]OOOO-E6o-E6oOOOO,59O,59OO#lOPO,59OOOOO-E6p-E6pOOOO1G.s1G.sOOOO1G.j1G.j",
-  stateData: "$m~OSPOZSO[SObROhSO~OUVOVUO_XO`XO~OSYOZ]O[]O]]OhZO~OSPOZcO[cObeOhcO~OVgO_hO`hO~OUiOVUO~OhZOSXXZXX[XX]XX~OhZOSeXZeX[eX]eX~OSYOZ]O[]O]]O~OSYOhZO~OSPOZcO[cObpOhcO~OVgO~OSZ~",
-  goto: "#lgPPhwP!UPP!Y!^!ePPP!oPP!wP!{#R#Z#fSSOTY^Q_`anTcRdWQORTdZaQ_`anTWPYTbQaS`QaRk^QXQSm_`RqnSSOTTcRdTSOTQTORfTU[Q^aRj[S_QaSl_nRn`QdRRod",
-  nodeNames: "⚠ TextColor Expression TcLeft LMarker Description Color InnerMarker TcRight Text REnd RMarker ENDLN EOF Unfinished ColorEOF ColorWS CodeSection CODE",
-  maxTerm: 24,
+  states: "&YQQOPOOOcOQO'#C_OqOPO'#CiO!VOPO'#CgOOOO'#Cp'#CpQQOPOOOOOO'#Ca'#CaO!hOQO,59TOOOO,58y,58yOOOO,59T,59TO!sOQO'#C_OOOO'#Cq'#CqO!{OPO'#CfOOOO'#Cl'#ClO#aOPO'#CrO#uOPO'#CeO#uOPO'#CeO$WOPO'#CtO$lOPO'#CdO$lOPO'#CdO$zOPO'#C^OOOO,58x,58xOOOO'#Cs'#CsO%VOPO,59ROOOO,59R,59ROOOO-E6n-E6nOOOO,58{,58{OOOO1G.o1G.oO%hOQO'#CaOOOO-E6o-E6oOOOO,59^,59^OOOO-E6p-E6pO%mOPO,59POOOO,59`,59`OOOO-E6r-E6rOOOO,59O,59OO$lOPO,59OOOOO-E6q-E6qOOOO1G.m1G.mOOOO1G.j1G.j",
+  stateData: "&R~OSPO[ROaSObSOjSO~OUVOVUO^XO_XO~OSYO[ROa]Ob]Oc]OjZO~OSPO[hOafObfOjfO~OVjO^kO_kO~OUlOVUO~OjZOSYX[YXaYXbYXcYX~OjZOSfX[fXafXbfXcfX~O[ROSXXaXXbXXcXX~O[ROjZOShXahXbhXchX~OSYOa]Ob]Oc]O~OSYO[ROjZO~OSPO[vOafObfOjfO~OVjO~O[ROSXaaXabXacXa~OSa~",
+  goto: "$]iPPjyP!WPP![!`!g!oP!{PP#TPPP#_#e#n#z$QSSOTYaQbcdtTfRgWQORTgZdQbcdtTWPYTeQdScQdRqaU`QadRn^SSOT]^Q_`adpSSOTTfRgQXQSsbcRwtQTORiTW[Q^adRm[U_QadSo_pRp`QgRRugSbQdSrbtRtc",
+  nodeNames: "⚠ TextColor Expression TcLeft LMarker Description Color InnerMarker TcRight Text Word CodeSection CODE Unfinished ColorEOF ColorWS REnd RMarker ENDLN EOF",
+  maxTerm: 26,
   skippedNodes: [0],
-  repeatNodeCount: 4,
-  tokenData: "%f~RcXY!^YZ!c]^!^pq!^qr!^rs!^s!_!^!_!`!p!`#O!^#O#P!}#P#S!^#S#T$q#T#r!^#r#s$v#s;'S!^;'S;=`%Z<%l~!^~O!^~~%a~!cOh~~!hPh~YZ!k~!pO[~~!uPh~#r#s!x~!}OZ~~#SXh~rs!^!P!Q!^#O#P!^#U#V!^#Y#Z!^#b#c!^#f#g!^#h#i!^#i#j#o~#rR!Q![#{!c!i#{#T#Z#{~$OR!Q![$X!c!i$X#T#Z$X~$[R!Q![$e!c!i$e#T#Z$e~$hR!Q![!^!c!i!^#T#Z!^~$vOb~~${Ph~!_!`%O~%RP#o#p%U~%ZOS~~%^P;=`<%l!^~%fO]~",
-  tokenizers: [1, new LocalTokenGroup("!X~R[X^wpqw#q#r|#y#zw$f$gw#BY#BZw$IS$I_w$I|$JOw$JT$JUw$KV$KWw&FU&FVw~~!R~|O`~~!ROV~~!WO_~~", 54, 6)],
+  repeatNodeCount: 5,
+  tokenData: "%f~RcXY!^YZ!c]^!^pq!^qr!^rs!^s!_!^!_!`!p!`#O!^#O#P!}#P#S!^#S#T$q#T#r!^#r#s$v#s;'S!^;'S;=`%Z<%l~!^~O!^~~%a~!cOj~~!hPj~YZ!k~!pOb~~!uPj~#r#s!x~!}Oa~~#SXj~rs!^!P!Q!^#O#P!^#U#V!^#Y#Z!^#b#c!^#f#g!^#h#i!^#i#j#o~#rR!Q![#{!c!i#{#T#Z#{~$OR!Q![$X!c!i$X#T#Z$X~$[R!Q![$e!c!i$e#T#Z$e~$hR!Q![!^!c!i!^#T#Z!^~$vO[~~${Pj~!_!`%O~%RP#o#p%U~%ZOS~~%^P;=`<%l!^~%fOc~",
+  tokenizers: [1, new LocalTokenGroup("!X~R[X^wpqw#q#r|#y#zw$f$gw#BY#BZw$IS$I_w$I|$JOw$JT$JUw$KV$KWw&FU&FVw~~!R~|O_~~!ROV~~!WO^~~", 54, 6)],
   topRules: {"TextColor":[0,1]},
-  tokenPrec: 164
+  tokenPrec: 230
 })

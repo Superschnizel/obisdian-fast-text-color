@@ -60,9 +60,13 @@ export class TextColor {
 		this.className = `${CSS_COLOR_PREFIX}${themeName}-${this.id}`
 	}
 
+	getColorValue(): string {
+    return this.useCssColorVariable ? `var(${this.colorVariable})` : this.color;
+	}
+
 	getCssClass(): string {
 		return `.${CSS_COLOR_PREFIX}${this.id} { 
-				color : ${this.useCssColorVariable ? `var(${this.colorVariable})` : this.color}\n;
+				color: ${this.getColorValue()};\n
 				${this.italic ? "font-style: italic;\n" : ''}
 				${this.bold ? 'font-weight: bold;\n' : ''}
 				${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};\n` : ''}
@@ -77,7 +81,7 @@ export class TextColor {
 	 * @returns {string} the inner css.
 	 */
 	getInnerCss(): string {
-		return `color : ${this.useCssColorVariable ? `var(${this.colorVariable})` : this.color};\n` +
+		return `color: ${this.getColorValue()};\n` +
 			`${this.italic ? "font-style: italic;\n" : ''}` +
 			`${this.bold ? 'font-weight: bold;\n' : ''}` +
 			`${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};\n` : ''}` +
@@ -86,7 +90,7 @@ export class TextColor {
 
 
 	getCssInlineStyle(): string {
-		return `color : ${this.useCssColorVariable ? `var(${this.colorVariable})` : this.color}\n;
+		return `color: ${this.getColorValue()};
 				${this.italic ? "font-style: italic;" : ''}
 				${this.bold ? 'font-weight: bold;' : ''}
 				${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};` : ''}
