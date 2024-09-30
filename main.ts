@@ -351,10 +351,7 @@ export default class FastTextColorPlugin extends Plugin {
 
 				const theme = this.settings.themes[i]
 				const className = `.${CSS_COLOR_PREFIX}${theme.name}-${tColor.id}`;
-				let cssClass =
-					`${className} {\n${tColor.getInnerCss()}` +
-					`${this.settings.colorCodeSection ? `--code-normal: ${tColor.getColorValue()};\n` : ''}` +
-					'}';
+				let cssClass = `${className} {\n${tColor.getInnerCss(this.settings)}\n}`;
 
 				this.styleElement.textContent += formatCss(cssClass) + "\n";
 			});

@@ -1,4 +1,4 @@
-import { CSS_COLOR_PREFIX, VAR_COLOR_PREFIX } from "../FastTextColorSettings";
+import { CSS_COLOR_PREFIX, VAR_COLOR_PREFIX, FastTextColorPluginSettings } from "../FastTextColorSettings";
 
 export class TextColor {
 	color: string;
@@ -64,15 +64,22 @@ export class TextColor {
     return this.useCssColorVariable ? `var(${this.colorVariable})` : this.color;
 	}
 
-	getCssClass(): string {
-		return `.${CSS_COLOR_PREFIX}${this.id} { 
-				color: ${this.getColorValue()};\n
-				${this.italic ? "font-style: italic;\n" : ''}
-				${this.bold ? 'font-weight: bold;\n' : ''}
-				${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};\n` : ''}
-				${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;\n" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;\n" : ''}
-				${VAR_COLOR_PREFIX}${this.id} : ${this.color};
-			    }`;
+	getCssDeclarations(settings?: FastTextColorPluginSettings) : string[] {
+		return [
+			`color: ${this.getColorValue()};`,
+			this.italic ? "font-style: italic;" : '',
+			this.bold ? "font-weight: bold;" : '',
+			this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};` : '',
+			this.cap_mode.state == "all_caps" ? "text-transform: uppercase;" :
+				this.cap_mode.state == "small_caps" ? "font-variant: small-caps;" : '',
+			settings?.colorCodeSection ? `--code-normal: ${this.getColorValue()};` : ''
+		].filter(Boolean);
+	}
+
+	getCssClass(settings?: FastTextColorPluginSettings): string {
+		return `.${CSS_COLOR_PREFIX}${this.id} {\n  ` +
+				this.getCssDeclarations(settings).join("\n  ") + "\n  " +
+				`${VAR_COLOR_PREFIX}${this.id}: ${this.color};\n}`;
 	}
 
 	/**
@@ -80,22 +87,12 @@ export class TextColor {
 	 *
 	 * @returns {string} the inner css.
 	 */
-	getInnerCss(): string {
-		return `color: ${this.getColorValue()};\n` +
-			`${this.italic ? "font-style: italic;\n" : ''}` +
-			`${this.bold ? 'font-weight: bold;\n' : ''}` +
-			`${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};\n` : ''}` +
-			`${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;\n" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;\n" : ''}`;
+	getInnerCss(settings?: FastTextColorPluginSettings): string {
+		return this.getCssDeclarations(settings).join("\n  ");
 	}
 
-
-	getCssInlineStyle(): string {
-		return `color: ${this.getColorValue()};
-				${this.italic ? "font-style: italic;" : ''}
-				${this.bold ? 'font-weight: bold;' : ''}
-				${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};` : ''}
-				${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;" : ''}
-				`
+	getCssInlineStyle(settings?: FastTextColorPluginSettings): string {
+		return this.getCssDeclarations(settings).join(" ");
 	}
 }
 
