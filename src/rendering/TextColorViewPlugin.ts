@@ -164,7 +164,12 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 
 					return true;
 
-				case "Text":
+				case "CodeSection":
+					if (settings.colorCodeSection == false) {
+						return false;
+					}
+					// eslint-disable-next-line no-fallthrough
+				case "Word":
 					builder.add(node.from + from, node.to + from, Decoration.mark({ class: `${CSS_COLOR_PREFIX}${themeName}-${colorStack[colorStack.length - 1].color}` }))
 					return false;
 

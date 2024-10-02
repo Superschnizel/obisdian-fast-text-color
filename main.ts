@@ -337,17 +337,23 @@ export default class FastTextColorPlugin extends Plugin {
 
 		}
 
-		this.styleElement.innerText = "";
+		this.styleElement.textContent = "";
+		const formatCss = (css: string) => {
+			const lines = css.split('\n').map(l => l.trim()).filter(l => l.length);
+			if (lines.length <= 5) { // format as a single line
+				return lines.join(' ');
+			}
+			return lines.map(l => /[{}]/.test(l) ? l : `  ${l}`).join('\n');
+		};
 		// dynamically create stylesheet.
 		for (let i = 0; i < this.settings.themes.length; i++) {
 			getColors(this.settings, i).forEach((tColor: TextColor) => {
 
 				const theme = this.settings.themes[i]
 				const className = `.${CSS_COLOR_PREFIX}${theme.name}-${tColor.id}`;
-				let cssClass =
-					`${className} {\n${tColor.getInnerCss()}}`
+				let cssClass = `${className} {\n${tColor.getInnerCss(this.settings)}\n}`;
 
-				this.styleElement.innerText += cssClass + "\n";
+				this.styleElement.textContent += formatCss(cssClass) + "\n";
 			});
 		}
 
