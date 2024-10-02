@@ -61,18 +61,19 @@ export class TextColor {
 	}
 
 	getColorValue(): string {
-    return this.useCssColorVariable ? `var(${this.colorVariable})` : this.color;
+		return this.useCssColorVariable ? `var(${this.colorVariable})` : this.color;
 	}
 
 	getCssDeclarations(settings?: FastTextColorPluginSettings) : string[] {
 		return [
-			`color: ${this.getColorValue()};`,
+			`--ftc-color: ${this.getColorValue()};`,
+			"color: var(--ftc-color);",
 			this.italic ? "font-style: italic;" : '',
 			this.bold ? "font-weight: bold;" : '',
 			this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};` : '',
 			this.cap_mode.state == "all_caps" ? "text-transform: uppercase;" :
 				this.cap_mode.state == "small_caps" ? "font-variant: small-caps;" : '',
-			settings?.colorCodeSection ? `--code-normal: ${this.getColorValue()};` : ''
+			settings?.colorCodeSection ? "--code-normal: var(--ftc-color);" : '',
 		].filter(Boolean);
 	}
 
