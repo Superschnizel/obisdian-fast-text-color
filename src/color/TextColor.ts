@@ -1,4 +1,4 @@
-import { CSS_COLOR_PREFIX, VAR_COLOR_PREFIX } from "../FastTextColorSettings";
+import { CSS_COLOR_PREFIX, VAR_COLOR_PREFIX, FastTextColorPluginSettings } from "../FastTextColorSettings";
 
 export class TextColor {
 	color: string;
@@ -60,15 +60,27 @@ export class TextColor {
 		this.className = `${CSS_COLOR_PREFIX}${themeName}-${this.id}`
 	}
 
-	getCssClass(): string {
-		return `.${CSS_COLOR_PREFIX}${this.id} { 
-				color : ${this.useCssColorVariable ? `var(${this.colorVariable})` : this.color}\n;
-				${this.italic ? "font-style: italic;\n" : ''}
-				${this.bold ? 'font-weight: bold;\n' : ''}
-				${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};\n` : ''}
-				${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;\n" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;\n" : ''}
-				${VAR_COLOR_PREFIX}${this.id} : ${this.color};
-			    }`;
+	getColorValue(): string {
+		return this.useCssColorVariable ? `var(${this.colorVariable})` : this.color;
+	}
+
+	getCssDeclarations(settings?: FastTextColorPluginSettings) : string[] {
+		return [
+			`--ftc-color: ${this.getColorValue()};`,
+			"color: var(--ftc-color);",
+			this.italic ? "font-style: italic;" : '',
+			this.bold ? "font-weight: bold;" : '',
+			this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};` : '',
+			this.cap_mode.state == "all_caps" ? "text-transform: uppercase;" :
+				this.cap_mode.state == "small_caps" ? "font-variant: small-caps;" : '',
+			settings?.colorCodeSection ? "--code-normal: var(--ftc-color);" : '',
+		].filter(Boolean);
+	}
+
+	getCssClass(settings?: FastTextColorPluginSettings): string {
+		return `.${CSS_COLOR_PREFIX}${this.id} {\n  ` +
+				this.getCssDeclarations(settings).join("\n  ") + "\n  " +
+				`${VAR_COLOR_PREFIX}${this.id}: ${this.color};\n}`;
 	}
 
 	/**
@@ -76,22 +88,12 @@ export class TextColor {
 	 *
 	 * @returns {string} the inner css.
 	 */
-	getInnerCss(): string {
-		return `color : ${this.useCssColorVariable ? `var(${this.colorVariable})` : this.color};\n` +
-			`${this.italic ? "font-style: italic;\n" : ''}` +
-			`${this.bold ? 'font-weight: bold;\n' : ''}` +
-			`${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};\n` : ''}` +
-			`${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;\n" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;\n" : ''}`;
+	getInnerCss(settings?: FastTextColorPluginSettings): string {
+		return this.getCssDeclarations(settings).join("\n  ");
 	}
 
-
-	getCssInlineStyle(): string {
-		return `color : ${this.useCssColorVariable ? `var(${this.colorVariable})` : this.color}\n;
-				${this.italic ? "font-style: italic;" : ''}
-				${this.bold ? 'font-weight: bold;' : ''}
-				${this.line_mode.state != "none" ? `text-decoration: ${this.line_mode.state};` : ''}
-				${this.cap_mode.state == "all_caps" ? "text-transform: uppercase;" : this.cap_mode.state == "small_caps" ? "font-variant: small-caps;" : ''}
-				`
+	getCssInlineStyle(settings?: FastTextColorPluginSettings): string {
+		return this.getCssDeclarations(settings).join(" ");
 	}
 }
 

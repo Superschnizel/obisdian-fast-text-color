@@ -51,6 +51,7 @@ export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
 	interactiveDelimiters: true,
 	useKeybindings: true,
 	useNodeRebuilding: false,
+	colorCodeSection: false,
 }
 
 
@@ -62,6 +63,7 @@ export interface FastTextColorPluginSettings {
 	interactiveDelimiters: boolean;
 	useKeybindings: boolean;
 	useNodeRebuilding: boolean;
+	colorCodeSection: boolean;
 }
 
 // --------------------------------------------------------------------------
@@ -164,7 +166,8 @@ export function updateSettings(settings: any): FastTextColorPluginSettings {
 				version: SETTINGS_VERSION,
 				interactiveDelimiters: settings.interactiveDelimiters,
 				useKeybindings: true,
-				useNodeRebuilding: false
+				useNodeRebuilding: false,
+				colorCodeSection: settings.colorCodeSection,
 			}
 			return outSettings;
 
@@ -334,6 +337,17 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						settings.useKeybindings = value;
 						await this.plugin.saveSettings();
+					})
+			})
+		new Setting(containerEl)
+			.setName("Color inline code")
+			.setDesc("Apply color to inline code.")
+			.addToggle(tgl => {
+				tgl.setValue(settings.colorCodeSection)
+					.onChange(async value => {
+						settings.colorCodeSection = value;
+						await this.plugin.saveSettings();
+						this.plugin.setCssVariables();
 					})
 			})
 
