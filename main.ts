@@ -202,7 +202,7 @@ export default class FastTextColorPlugin extends Plugin {
 		document.body.querySelector(".mod-vertical.mod-root")?.insertAdjacentElement("afterbegin", this.colorMenu);
 
 
-		for (let i = 0; i < Math.min(getColors(this.settings).length, MAX_MENU_ITEMS); i++) {
+		for (let i = 0; i < getColors(this.settings).length; i++) {
 			this.createColorItem(this.colorMenu, getColors(this.settings)[i], i + 1, editor);
 		}
 
@@ -233,6 +233,11 @@ export default class FastTextColorPlugin extends Plugin {
 		// colors - number keys
 		for (let i = 0; i < getColors(this.settings).length; i++) {
 			const tColor = getColors(this.settings)[i];
+
+			if (!tColor.keybind || tColor.keybind == '') {
+				continue;
+			}
+
 			scope.register([], tColor.keybind, (event) => {
 				if (event.isComposing) {
 					return true;
