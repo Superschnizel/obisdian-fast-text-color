@@ -136,7 +136,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 
 				case "EOF":
 				case "ENDLN":
-					colorStack.pop()?.inside;
+					colorStack.pop();
 					return true;
 
 				case "TcLeft":
@@ -156,7 +156,6 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 						if (stateFrom <= from + node.to && stateTo >= from + node.from) {
 							return true;
 						}
-
 
 						const widget = new ColorWidget(color, node.from + from, node.to + from, ExpressionNode.to, themeName);
 						builder.add(node.from + from, node.to + from, Decoration.replace({ widget: widget, block: false }))
