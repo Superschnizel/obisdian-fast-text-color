@@ -201,9 +201,12 @@ export default class FastTextColorPlugin extends Plugin {
 		// cMenu https://github.com/chetachiezikeuzor/cMenu-Plugin/blob/master/src/modals/cMenuModal.ts#L5
 		document.body.querySelector(".mod-vertical.mod-root")?.insertAdjacentElement("afterbegin", this.colorMenu);
 
+		let colors = getColors(this.settings);
 
-		for (let i = 0; i < getColors(this.settings).length; i++) {
-			this.createColorItem(this.colorMenu, getColors(this.settings)[i], i + 1, editor);
+		for (let i = 0; i < colors.length; i++) {
+			console.log(colors[i].getColorValue());
+			
+			this.createColorItem(this.colorMenu, colors[i], i + 1, editor);
 		}
 
 		// have to apply it again, otherwise menu will not be centered.
@@ -317,11 +320,11 @@ export default class FastTextColorPlugin extends Plugin {
 			.setClass("fast-color-menu-item")
 			.onClick(() => {
 				let n = new Notice("activated color");
-				n.noticeEl.setAttr("style", `background-color: ${tColor.color}`);
+				n.noticeEl.setAttr("style", `background-color: ${tColor.getColorValue()}`);
 				applyColor(tColor, editor);
 				this.closeColorMenu();
 			})
-			.buttonEl.setAttr("style", `background-color: ${tColor.color}`);
+			.buttonEl.setAttr("style", `background-color: ${tColor.getColorValue()}`);
 	}
 
 	/**
