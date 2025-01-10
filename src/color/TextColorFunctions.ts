@@ -39,6 +39,16 @@ export function applyColor(tColor: TextColor, editor: Editor) {
 	let coloredText = `${prefix}${selected}${suffix}`;
 
 	editor.replaceSelection(coloredText);
+
+	// move cursor one item to the right.
+	// could not find a way to query for last possible position, so trycatch is needed.
+	try {
+		let pos = editor.getCursor();
+		pos.ch = pos.ch + 1;
+		editor.setCursor(pos);
+	} catch {
+		return;
+	}
 }
 
 /**

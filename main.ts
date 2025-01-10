@@ -204,7 +204,7 @@ export default class FastTextColorPlugin extends Plugin {
 		let colors = getColors(this.settings);
 
 		for (let i = 0; i < colors.length; i++) {
-			console.log(colors[i].getColorValue());
+			// console.log(colors[i].getColorValue());
 			
 			this.createColorItem(this.colorMenu, colors[i], i + 1, editor);
 		}

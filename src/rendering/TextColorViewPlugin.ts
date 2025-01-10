@@ -119,9 +119,11 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 	const frontmatterTheme = getThemeFromFrontmatter(state);
 	const themeName = frontmatterTheme == '' ? getCurrentTheme(settings).name : frontmatterTheme;
 
+	console.log("-------------------- Iterating");
+	
 	ExpressionNode.node.toTree().iterate({ // toTree allocates a tree, this might be a point of optimization. TODO optimization
 		enter(node) {
-			// console.log(node.name)
+			console.log(`${node.name}: ${node.from}, ${node.to}`)
 
 			switch (node.type.name) {
 				case "RMarker":
