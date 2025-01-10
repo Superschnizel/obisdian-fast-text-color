@@ -77,9 +77,11 @@ class TextColorViewPlugin implements PluginValue {
 
 					// const cursorInside = view.state.selection.main.from <= node.to && view.state.selection.main.to >= node.from;
 
+					// I dont know why this needs a trycatch but if not there will be issues.
 					try { 
 						handleExpression(node, builder, view.state); 
 					} catch {
+						// console.log("there was an error!")
 						return true;
 					}
 
@@ -138,6 +140,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 						return true;
 					}
 
+					// console.log(`adding: from ${node.from + from} to ${node.to + from}`);
 					builder.add(node.from + from, node.to + from, Decoration.replace({ widget: new MarkerWidget(), block: false }))
 					return true;
 
@@ -152,7 +155,9 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 						return true;
 					}
 
-					builder.add(node.from + from, node.to + from, Decoration.replace({ widget: new MarkerWidget(), block: false }))
+					let decoration = Decoration.replace({ widget: new MarkerWidget(), block: false });
+					// console.log(`adding: from ${node.from + from} to ${node.to + from} with ${decoration.startSide}`);
+					builder.add(node.from + from, node.to + from, decoration)
 					return true;
 
 				case "Color":
