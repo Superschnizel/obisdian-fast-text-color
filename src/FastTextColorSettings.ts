@@ -45,11 +45,11 @@ export const DEFAULT_COLORS = [
 
 
 export const DEFAULT_SETTINGS: FastTextColorPluginSettings = {
-	themes: [new TextColorTheme("default", DEFAULT_COLORS), new TextColorTheme("builtin", BUILTIN_COLORS)],
+	themes: [new TextColorTheme("builtin", BUILTIN_COLORS), new TextColorTheme("default", DEFAULT_COLORS)],
 	themeIndex: 0,
 	version: SETTINGS_VERSION,
 	interactiveDelimiters: true,
-	useKeybindings: true,
+	useKeybindings: false,
 	useNodeRebuilding: false,
 	colorCodeSection: false,
 }
