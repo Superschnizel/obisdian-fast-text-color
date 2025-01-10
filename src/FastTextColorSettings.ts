@@ -279,7 +279,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 		// Create Settings for individual Colors.
 		let count = 1;
 		getColors(settings, this.editThemeIndex).forEach((color: TextColor) => {
-			this.createColorSetting(themeColorsEl, color, count);
+			this.createColorSetting(themeColorsEl, color, count, this.editThemeIndex);
 			count++;
 		});
 
@@ -299,6 +299,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 						let colors = getColors(settings, this.editThemeIndex);
 						if (colors.some(tColor => { return tColor.id == this.newId })) {
 							new Notice(`color with id ${this.newId} already exists!`);
+							return;
 						}
 
 						let newColorName = this.newId == '' ? (colors.length + 1).toString() : this.newId;
@@ -370,7 +371,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 	 * @param {TextColor} tColor - the color to be used for display
 	 * @param {number} count - the index of the color
 	 */
-	createColorSetting(container: HTMLElement, tColor: TextColor, count: number): void {
+	createColorSetting(container: HTMLElement, tColor: TextColor, count: number, themeindex: number): void {
 
 		let nameFragment = new DocumentFragment()
 		let nameDiv = nameFragment.createDiv();
@@ -571,8 +572,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setTooltip("move item up")
 					.setClass("ftc-move-btn-left")
 
-					.onClick(async evt => {
-						moveColor(count - 1, -1, this.plugin.settings);
+					.onClick(async _ => {
+						moveColor(count - 1, -1, this.plugin.settings, themeindex);
 						await this.plugin.saveSettings();
 						this.display();
 					})
@@ -583,8 +584,8 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setTooltip("move item down")
 					.setClass("ftc-move-btn-right")
 
-					.onClick(async evt => {
-						moveColor(count - 1, 1, this.plugin.settings);
+					.onClick(async _ => {
+						moveColor(count - 1, 1, this.plugin.settings, themeindex);
 						await this.plugin.saveSettings();
 						this.display();
 					})
@@ -597,11 +598,11 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 					.setTooltip("delete color")
 					.setClass("ftc-move-btn-right")
 
-					.onClick(async evt => {
+					.onClick(async _ => {
 						if (await confirmByModal(this.app,
 							`Colored section whith the id "${tColor.id}" will no longer be colored until you add another color with that id.`,
 							`Delete color: ${tColor.id}`)) {
-							getColors(this.plugin.settings).remove(tColor);
+							getColors(this.plugin.settings, themeindex).remove(tColor);
 						}
 						await this.plugin.saveSettings();
 						this.display();
@@ -611,12 +612,13 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 }
 
 // moving up means decreasing index
-function moveColor(index: number, direction: number, settings: FastTextColorPluginSettings) {
+function moveColor(index: number, direction: number, settings: FastTextColorPluginSettings, themeindex: number) {
 	if ((direction < 0 && index == 0) || (direction > 0 && index == getColors(settings).length - 1)) {
 		return;
 	}
+	let colors = getColors(settings, themeindex);
 
-	let temp = getColors(settings)[index + direction];
-	getColors(settings)[index + direction] = getColors(settings)[index];
-	getColors(settings)[index] = temp;
+	let temp = colors[index + direction];
+	colors[index + direction] = colors[index];
+	colors[index] = temp;
 }
