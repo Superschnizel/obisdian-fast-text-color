@@ -209,7 +209,7 @@ export class FastTextColorPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Set active theme")
-			.setDesc("Set global active theme.")
+			.setDesc("Set the active theme that will be used to color text. \nCan be overwritten per note by setting the property ftcTheme to a valid theme name.")
 			.addDropdown(dd => {
 				let count = 0;
 				settings.themes.forEach(theme => {

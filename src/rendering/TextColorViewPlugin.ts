@@ -77,7 +77,11 @@ class TextColorViewPlugin implements PluginValue {
 
 					// const cursorInside = view.state.selection.main.from <= node.to && view.state.selection.main.to >= node.from;
 
-					handleExpression(node, builder, view.state);
+					try { 
+						handleExpression(node, builder, view.state); 
+					} catch {
+						return true;
+					}
 
 					return false;
 				},
@@ -109,6 +113,7 @@ function isLivePreview(state: EditorState): boolean {
 function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilder<Decoration>, state: EditorState) {
 	// figure out bounds and create stack
 	const from = ExpressionNode.from;
+	const to = ExpressionNode.to;
 	let colorStack: { color: string, inside: boolean }[] = []; // handle recursive coloring with stack
 
 	const stateFrom = state.selection.main.from;
@@ -119,11 +124,11 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 	const frontmatterTheme = getThemeFromFrontmatter(state);
 	const themeName = frontmatterTheme == '' ? getCurrentTheme(settings).name : frontmatterTheme;
 
-	console.log("-------------------- Iterating");
-	
+	// console.log(`-------------------- Iterating: ${from}-${to}`);
+
 	ExpressionNode.node.toTree().iterate({ // toTree allocates a tree, this might be a point of optimization. TODO optimization
 		enter(node) {
-			console.log(`${node.name}: ${node.from}, ${node.to}`)
+			// console.log(`${node.name}: ${node.from}, ${node.to}`)
 
 			switch (node.type.name) {
 				case "RMarker":
@@ -169,7 +174,7 @@ function handleExpression(ExpressionNode: SyntaxNodeRef, builder: RangeSetBuilde
 					if (settings.colorCodeSection == false) {
 						return false;
 					}
-					// eslint-disable-next-line no-fallthrough
+				// eslint-disable-next-line no-fallthrough
 				case "Word":
 					builder.add(node.from + from, node.to + from, Decoration.mark({ class: `${CSS_COLOR_PREFIX}${themeName}-${colorStack[colorStack.length - 1].color}` }))
 					return false;
